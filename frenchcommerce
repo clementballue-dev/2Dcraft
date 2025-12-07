@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Choix du commerce</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background-color: #f4f4f4;
+      padding: 20px;
+      height: 100vh;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    }
+
+    .sidebar h2 {
+      margin-top: 0;
+    }
+
+    .sidebar button {
+      display: block;
+      width: 100%;
+      margin: 5px 0;
+      padding: 10px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      text-align: left;
+      transition: background-color 0.2s;
+    }
+
+    .sidebar button:hover {
+      background-color: #ddd;
+    }
+
+    .sidebar button.active {
+      background-color: #007bff;
+      color: #fff;
+      border-color: #007bff;
+    }
+
+    /* Contenu principal */
+    .main {
+      flex: 1;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <h2>Régions</h2>
+    <button onclick="selectRegion('Normandie')" id="region-normandie">Normandie</button>
+    <button onclick="selectRegion('Provence')" id="region-provence">Provence</button>
+    <button onclick="selectRegion('Île-de-France')" id="region-iledefrance">Île-de-France</button>
+
+    <h2>Commerces</h2>
+    <button onclick="selectCommerce('Coiffeur')" id="commerce-coiffeur">Coiffeur</button>
+    <button onclick="selectCommerce('Restaurant')" id="commerce-restaurant">Restaurant</button>
+    <button onclick="selectCommerce('Boulanger')" id="commerce-boulanger">Boulanger</button>
+    <button onclick="selectCommerce('Pharmacie')" id="commerce-pharmacie">Pharmacie</button>
+    <button onclick="selectCommerce('Boucherie')" id="commerce-boucherie">Boucherie</button>
+    <button onclick="selectCommerce('Charcutier')" id="commerce-charcutier">Charcutier</button>
+  </div>
+
+  <div class="main">
+    <h1>Choisissez votre commerce</h1>
+    <p id="selection">Aucune sélection pour l’instant.</p>
+  </div>
+
+  <script>
+    let currentRegion = '';
+    let currentCommerce = '';
+
+    function selectRegion(region) {
+      currentRegion = region;
+      document.querySelectorAll('.sidebar button[id^="region-"]').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('region-' + region.toLowerCase().replace(/ /g,'')).classList.add('active');
+      updateSelection();
+    }
+
+    function selectCommerce(commerce) {
+      currentCommerce = commerce;
+      document.querySelectorAll('.sidebar button[id^="commerce-"]').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('commerce-' + commerce.toLowerCase().replace(/ /g,'')).classList.add('active');
+      updateSelection();
+    }
+
+    function updateSelection() {
+      const display = document.getElementById('selection');
+      if(currentRegion && currentCommerce) {
+        display.textContent = `Vous avez choisi un ${currentCommerce} en ${currentRegion}.`;
+      } else if(currentRegion) {
+        display.textContent = `Région sélectionnée : ${currentRegion}.`;
+      } else if(currentCommerce) {
+        display.textContent = `Commerce sélectionné : ${currentCommerce}.`;
+      } else {
+        display.textContent = 'Aucune sélection pour l’instant.';
+      }
+    }
+  </script>
+
+</body>
+</html>
