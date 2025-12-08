@@ -1,250 +1,104 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Commerces France</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Choix du commerce</title>
 
-<style>
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  display:flex;
-  height:100vh;
-  background:#f2f4f8;
-}
+  <style>
+    body {
+      display: flex;       /* sidebar et main côte à côte */
+      margin: 0;
+      font-family: Arial, sans-serif;
+      height: 100vh;       /* prend toute la hauteur de l’écran */
+    }
 
-/* SIDEBAR */
-.sidebar{
-  width:260px;
-  background:#fff;
-  border-right:1px solid #ddd;
-  padding:20px;
-  overflow:auto;
-}
-.sidebar h2{margin-top:0;}
-.btn{
-  width:100%;
-  padding:10px;
-  margin:5px 0;
-  border:none;
-  border-radius:8px;
-  background:#f0f0f0;
-  cursor:pointer;
-}
-.btn.active{background:#007bff;color:#fff;}
+    /* Sidebar */
+    .sidebar {
+      width: 150px;        /* petite sidebar */
+      background-color: #f4f4f4;
+      padding: 20px;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      overflow-y: auto;
+    }
 
-/* CONTENU */
-main{
-  flex:1;
-  padding:20px;
-  overflow:auto;
-}
+    .sidebar h2 { margin-top: 0; }
 
-#message{
-  text-align:center;
-  color:#666;
-  font-size:18px;
-  margin-top:40px;
-}
+    .sidebar button {
+      display: block;
+      width: 100%;
+      margin: 5px 0;
+      padding: 10px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      text-align: left;
+      transition: background-color 0.2s;
+    }
 
-/* GRILLE CARTES */
-#cards{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:20px;
-  margin-top:20px;
-}
+    .sidebar button:hover { background-color: #ddd; }
 
-/* CARTE PORTRAIT */
-.card{
-  background:#fff;
-  border-radius:14px;
-  overflow:hidden;
-  box-shadow:0 10px 25px rgba(0,0,0,.08);
-  cursor:pointer;
-  animation:fadeUp .6s ease forwards;
-}
+    .sidebar button.active {
+      background-color: #007bff;
+      color: #fff;
+      border-color: #007bff;
+    }
 
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(20px);}
-  to{opacity:1;transform:none;}
-}
-
-.card img{
-  width:100%;
-  height:160px;
-  object-fit:cover;
-}
-
-.card .content{
-  padding:12px;
-}
-.card h3{margin:0;}
-.card p{margin:5px 0;font-size:14px;color:#555;}
-
-/* MODAL PLEIN ECRAN */
-#fullscreen{
-  position:fixed;
-  inset:0;
-  background:#fff;
-  display:none;
-  flex-direction:column;
-  z-index:1000;
-  animation:zoom .4s ease;
-}
-
-@keyframes zoom{
-  from{opacity:0;transform:scale(.96);}
-  to{opacity:1;transform:scale(1);}
-}
-
-#fullscreen img{
-  width:100%;
-  height:45vh;
-  object-fit:cover;
-}
-
-#fullscreen .info{
-  padding:20px;
-}
-#close{
-  position:absolute;
-  top:15px;
-  right:15px;
-  background:black;
-  color:white;
-  border:none;
-  padding:10px 14px;
-  border-radius:50%;
-  font-size:16px;
-  cursor:pointer;
-}
-</style>
+    /* Partie principale */
+    .main {
+      flex: 3;             /* plus grande que la sidebar */
+      padding: 20px;
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="sidebar">
-  <h2>Régions</h2>
-  <button class="btn region" data-r="Normandie">Normandie</button>
-  <button class="btn region" data-r="Île-de-France">Île-de-France</button>
-  <button class="btn region" data-r="Bretagne">Bretagne</button>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Régions</h2>
+    <button onclick="selectRegion('Normandie')" id="region-normandie">Normandie</button>
+    <button onclick="selectRegion('Provence')" id="region-provence">Provence</button>
+    <button onclick="selectRegion('Île-de-France')" id="region-iledefrance">Île-de-France</button>
 
-  <h2>Commerces</h2>
-  <button class="btn commerce" data-c="Restaurant">Restaurant</button>
-  <button class="btn commerce" data-c="Coiffeur">Coiffeur</button>
-  <button class="btn commerce" data-c="Boulangerie">Boulangerie</button>
-</div>
+    <h2>Commerces</h2>
+    <button onclick="selectCommerce('Coiffeur')" id="commerce-coiffeur">Coiffeur</button>
+    <button onclick="selectCommerce('Restaurant')" id="commerce-restaurant">Restaurant</button>
+    <button onclick="selectCommerce('Boulanger')" id="commerce-boulanger">Boulanger</button>
+    <button onclick="selectCommerce('Pharmacie')" id="commerce-pharmacie">Pharmacie</button>
+    <button onclick="selectCommerce('Boucherie')" id="commerce-boucherie">Boucherie</button>
+    <button onclick="selectCommerce('Charcutier')" id="commerce-charcutier">Charcutier</button>
+  </div>
 
-<main>
-  <h1>Recherche</h1>
-  <div id="message">Choisis une région et un commerce</div>
-  <div id="cards"></div>
-</main>
+  <!-- Grande partie principale -->
+  <div class="main">
+    <h1>Bienvenue sur mon site</h1>
+    <p>Sélectionnez un commerce dans la sidebar.</p>
+  </div>
 
-<!-- PLEIN ECRAN -->
-<div id="fullscreen">
-  <button id="close" onclick="closeFull()">×</button>
-  <img id="fullImg">
-  <div class="info" id="fullInfo"></div>
-</div>
+  <!-- JavaScript pour les boutons -->
+  <script>
+    let currentRegion = '';
+    let currentCommerce = '';
 
-<script>
-let region="", commerce="",
-<script>
-let selectedRegion = "";
-let selectedCommerce = "";
+    function selectRegion(region) {
+      currentRegion = region;
+      document.querySelectorAll('.sidebar button[id^="region-"]').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('region-' + region.toLowerCase().replace(/ /g,'')).classList.add('active');
+      updateSelection();
+    }
 
-function selectRegion(btn, region){
-  selectedRegion = region;
-  updateUI();
-}
+    function selectCommerce(commerce) {
+      currentCommerce = commerce;
+      document.querySelectorAll('.sidebar button[id^="commerce-"]').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('commerce-' + commerce.toLowerCase().replace(/ /g,'')).classList.add('active');
+      updateSelection();
+    }
 
-function selectCommerce(btn, commerce){
-  selectedCommerce = commerce;
-  updateUI();
-}
-
-function updateUI(){
-  const resultsArea = document.getElementById("cards");
-  resultsArea.innerHTML = "";
-
-  if(selectedRegion && selectedCommerce){
-    renderResults();
-  }
-}
-
-function renderResults(){
-  const resultsArea = document.getElementById("cards");
-
-  for(let i = 1; i <= 4; i++){
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <h3>${selectedCommerce} ${i}</h3>
-      <p>${selectedRegion}</p>
-    `;
-    resultsArea.appendChild(card);
-  }
-}
-</script>
-
-document.querySelectorAll(".region").forEach(b=>{
-  b.onclick=()=>{
-    document.querySelectorAll(".region").forEach(x=>x.classList.remove("active"));
-    b.classList.add("active");
-    region=b.dataset.r;
-    render();
-  }
-});
-document.querySelectorAll(".commerce").forEach(b=>{
-  b.onclick=()=>{
-    document.querySelectorAll(".commerce").forEach(x=>x.classList.remove("active"));
-    b.classList.add("active");
-    commerce=b.dataset.c;
-    render();
-  }
-});
-
-function render(){
-  const msg=document.getElementById("message");
-  const cards=document.getElementById("cards");
-  cards.innerHTML="";
-  if(!region||!commerce){
-    msg.style.display="block";
-    return;
-  }
-  msg.style.display="none";
-
-  for(let i=1;i<=4;i++){
-    const card=document.createElement("div");
-    card.className="card";
-    card.innerHTML=`
-      <img src="https://picsum.photos/400/600?random=${i}">
-      <div class="content">
-        <h3>${commerce} ${i}</h3>
-        <p>${region}</p>
-        <p>${i} rue Exemple</p>
-      </div>
-    `;
-    card.onclick=()=>openFull(i);
-    cards.appendChild(card);
-  }
-}
-
-function openFull(i){
-  document.getElementById("fullImg").src=`https://picsum.photos/800/1000?random=${i}`;
-  document.getElementById("fullInfo").innerHTML=`
-    <h2>${commerce} ${i}</h2>
-    <p><strong>Région :</strong> ${region}</p>
-    <p><strong>Description :</strong> Ajoute ici tes infos, horaires, téléphone, etc.</p>
-  `;
-  document.getElementById("fullscreen").style.display="flex";
-}
-function closeFull(){
-  document.getElementById("fullscreen").style.display="none";
-}
-</script>
+    function updateSelection() {
+      const display = document.getElementById('selection');
+      if(!display) return; // la grande partie n’a pas besoin d’afficher le texte
+    }
+  </script>
 
 </body>
+</html>
