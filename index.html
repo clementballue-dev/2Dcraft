@@ -1,158 +1,336 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Annuaire Commerces France</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mini-jeu — Play</title>
 <style>
-body { display:flex; margin:0; font-family:Arial,sans-serif; min-height:100vh; }
-.sidebar { width:250px; background:#f4f4f4; padding:15px; box-shadow:2px 0 5px rgba(0,0,0,0.1); overflow-y:auto; }
-.sidebar h2 { margin:0 0 10px; }
-.sidebar button { width:100%; padding:8px; margin:5px 0; border:1px solid #aaa; background:#fff; cursor:pointer; text-align:left; }
-.sidebar button.active { background:#007bff; color:#fff; border-color:#007bff; }
-.main { flex:1; padding:20px; overflow-y:auto; }
-.cards { display:flex; flex-wrap:wrap; gap:15px; }
-.card { width:200px; border:1px solid #bbb; border-radius:4px; overflow:hidden; box-shadow:1px 1px 5px rgba(0,0,0,0.1); cursor:pointer; background:#fff; }
-.card img { width:100%; height:120px; object-fit:cover; }
-.card .info { padding:10px; }
-#overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; }
-#overlay .overlay-content { background:#fff; padding:20px; max-width:500px; width:90%; max-height:90%; overflow-y:auto; border-radius:4px; }
-#overlay .overlay-content img { width:100%; height:auto; margin-bottom:10px; }
-#overlay .close { position:absolute; top:20px; right:30px; font-size:28px; color:#fff; cursor:pointer; }
+  :root{
+    --bg:#3b82f6;      /* bleu de fond */
+    --ui:#0b74ff;      /* couleur boutons */
+    --ui-contrast:#fff;
+    --card:#ffffff22;
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    font-family: Inter, system-ui, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    background:var(--bg);
+  }
+
+  /* canvas centré et plein écran */
+  #gameWrap{
+    position:relative;
+    width:100%;
+    height:100vh;
+    display:block;
+    overflow:hidden;
+  }
+
+  canvas{
+    display:block;
+    width:100%;
+    height:100%;
+    background:linear-gradient(#3b82f6,#2b6fd6);
+  }
+
+  /* bouton jouer en bas à droite */
+  .playBtn{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    z-index:40;
+    background:var(--ui);
+    color:var(--ui-contrast);
+    border:0;
+    padding:14px 18px;
+    border-radius:12px;
+    box-shadow:0 6px 18px rgba(11,116,255,0.28);
+    font-weight:600;
+    cursor:pointer;
+    display:inline-flex;
+    gap:10px;
+    align-items:center;
+    user-select:none;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .playBtn:active{ transform:translateY(2px); box-shadow:0 3px 10px rgba(11,116,255,0.22); }
+
+  .playBtn svg{ width:18px; height:18px; fill:currentColor; }
+
+  /* petite UI en haut à gauche affichant état */
+  .info{
+    position:fixed;
+    left:18px;
+    top:18px;
+    z-index:40;
+    color:white;
+    background:var(--card);
+    padding:8px 12px;
+    border-radius:10px;
+    backdrop-filter: blur(6px);
+    font-size:14px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.12);
+  }
+
+  /* mobile tweaks */
+  @media (max-width:480px){
+    .playBtn{ right:12px; bottom:12px; padding:12px 14px; border-radius:10px; }
+  }
 </style>
 </head>
 <body>
 
-<div class="sidebar">
-<h2>Régions</h2>
-<button onclick="selectRegion('Auvergne-Rhône-Alpes')">Auvergne-Rhône-Alpes</button>
-<button onclick="selectRegion('Bourgogne-Franche-Comté')">Bourgogne-Franche-Comté</button>
-<button onclick="selectRegion('Bretagne')">Bretagne</button>
-<button onclick="selectRegion('Centre-Val de Loire')">Centre-Val de Loire</button>
-<button onclick="selectRegion('Corse')">Corse</button>
-<button onclick="selectRegion('Grand Est')">Grand Est</button>
-<button onclick="selectRegion('Hauts-de-France')">Hauts-de-France</button>
-<button onclick="selectRegion('Île-de-France')">Île-de-France</button>
-<button onclick="selectRegion('Normandie')">Normandie</button>
-<button onclick="selectRegion('Nouvelle-Aquitaine')">Nouvelle-Aquitaine</button>
-<button onclick="selectRegion('Occitanie')">Occitanie</button>
-<button onclick="selectRegion('Pays de la Loire')">Pays de la Loire</button>
-<button onclick="selectRegion('Provence-Alpes-Côte d’Azur')">Provence-Alpes-Côte d’Azur</button>
+<div id="gameWrap">
+  <canvas id="gameCanvas"></canvas>
 
-<h2>Commerces</h2>
-<button onclick="selectCommerce('Coiffeur')">Coiffeur</button>
-<button onclick="selectCommerce('Restaurant')">Restaurant</button>
-<button onclick="selectCommerce('Boulangerie')">Boulangerie</button>
-<button onclick="selectCommerce('Pharmacie')">Pharmacie</button>
-<button onclick="selectCommerce('Boucherie')">Boucherie</button>
-<button onclick="selectCommerce('Charcutier')">Charcutier</button>
-</div>
+  <div class="info" id="info">État : <strong id="state">En attente</strong></div>
 
-<div class="main">
-<h1>Choisis une région et un commerce</h1>
-<div id="cardsContainer" class="cards"></div>
-</div>
-
-<div id="overlay">
-<div class="close" onclick="closeOverlay()">&times;</div>
-<div class="overlay-content" id="overlayContent"></div>
+  <button class="playBtn" id="playBtn" aria-live="polite" aria-pressed="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+    <span id="playLabel">Jouer</span>
+  </button>
 </div>
 
 <script>
-// Toutes les données des commerces donnés précédemment
+/*
+  Mini-jeu simple :
+  - personnage = cercle centré
+  - bouton Jouer lance la boucle de jeu
+  - flèches gauche/droite pour déplacer
+  - espace ou clique sur le canvas pour faire sauter
+  - overlay / UI minimale
+*/
 
-const commerces = [
-  // 10 Coiffeurs Île-de-France
-  {region:'Île-de-France', type:'Coiffeur', name:'Naé', address:'83 Rue Cardinet, 75017 Paris', phone:'01 45 74 10 10', img:'https://via.placeholder.com/200x120?text=Naé'},
-  {region:'Île-de-France', type:'Coiffeur', name:'CF Coiffeurs', address:'5 Rue Général Lanrezac, 75017 Paris', phone:'01 42 27 11 22', img:'https://via.placeholder.com/200x120?text=CF+Coiffeurs'},
-  {region:'Île-de-France', type:'Coiffeur', name:'Luz Coiffure', address:'117 Rue Vaugirard, 75015 Paris', phone:'01 45 32 44 55', img:'https://via.placeholder.com/200x120?text=Luz+Coiffure'},
-  {region:'Île-de-France', type:'Coiffeur', name:'Hair Studio Paris', address:'10 Avenue de l’Opéra, 75001 Paris', phone:'01 42 60 11 11', img:'https://via.placeholder.com/200x120?text=Hair+Studio+Paris'},
-  {region:'Île-de-France', type:'Coiffeur', name:'Studio Coiffure', address:'22 Rue de la Paix, 75002 Paris', phone:'01 40 20 30 40', img:'https://via.placeholder.com/200x120?text=Studio+Coiffure'},
-  {region:'Île-de-France', type:'Coiffeur', name:'Paris Hair', address:'15 Rue de Rivoli, 75001 Paris', phone:'01 44 55 66 77', img:'https://via.placeholder.com/200x120?text=Paris+Hair'},
-  {region:'Île-de-France', type:'Coiffeur', name:'Salon Élite', address:'8 Rue Saint-Honoré, 75001 Paris', phone:'01 40 50 60 70', img:'https://via.placeholder.com/200x120?text=Salon+Élite'},
-  {region:'Île-de-France', type:'Coiffeur', name:'Hair Concept', address:'12 Boulevard Haussmann, 75009 Paris', phone:'01 42 80 90 10', img:'https://via.placeholder.com/200x120?text=Hair+Concept'},
-  {region:'Île-de-France', type:'Coiffeur', name:'Coiffure Chic', address:'5 Avenue Montaigne, 75008 Paris', phone:'01 43 50 60 70', img:'https://via.placeholder.com/200x120?text=Coiffure+Chic'},
-  {region:'Île-de-France', type:'Coiffeur', name:'Studio Parisien', address:'20 Rue de la Pompe, 75016 Paris', phone:'01 45 55 66 77', img:'https://via.placeholder.com/200x120?text=Studio+Parisien'},
+/* Setup canvas */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d', { alpha: false });
 
-  // 10 Coiffeurs Normandie
-  {region:'Normandie', type:'Coiffeur', name:'Salon Normand 1', address:'1 Rue du Marché, 14000 Caen', phone:'02 31 11 22 01', img:'https://via.placeholder.com/200x120?text=Salon+Normand+1'},
-  {region:'Normandie', type:'Coiffeur', name:'Salon Normand 2', address:'2 Rue des Fleurs, 14000 Caen', phone:'02 31 11 22 02', img:'https://via.placeholder.com/200x120?text=Salon+Normand+2'},
-  {region:'Normandie', type:'Coiffeur', name:'Salon Normand 3', address:'3 Rue des Lilas, 14000 Caen', phone:'02 31 11 22 03', img:'https://via.placeholder.com/200x120?text=Salon+Normand+3'},
-  {region:'Normandie', type:'Coiffeur', name:'Salon Normand 4', address:'4 Rue de la Gare, 14000 Caen', phone:'02 31 11 22 04', img:'https://via.placeholder.com/200x120?text=Salon+Normand+4'},
-  {region:'Normandie', type:'Coiffeur', name:'Salon Normand 5', address:'5 Rue Saint-Pierre, 14000 Caen', phone:'02 31 11 22 05', img:'https://via.placeholder.com/200x120?text=Salon+Normand+5'},
-  {region:'Normandie', type:'Coiffeur', name:'Salon Normand 6', address:'6 Rue des Acacias, 14000 Caen', phone:'02 31 11 22 06', img:'https://via.placeholder.com/200x120?text=Salon+Normand+6'},
-  {region:'Normandie', type:'Coiffeur', name:'Salon Normand 7', address:'7 Rue du Moulin, 14000 Caen', phone:'02 31 11 22 07', img:'https://via.placeholder.com/200x120?text=Salon+Normand+7'},
-  {region:'Normandie', type:'Coiffeur', name:'Salon Normand 8', address:'8 Rue du Parc, 14000 Caen', phone:'02 31 11 22 08', img:'https://via.placeholder.com/200x120?text=Salon+Normand+8'},
-  {region:'Normandie', type:'Coiffeur', name:'Salon Normand 9', address:'9 Rue des Tilleuls, 14000 Caen', phone:'02 31 11 22 09', img:'https://via.placeholder.com/200x120?text=Salon+Normand+9'},
-  {region:'Normandie', type:'Coiffeur', name:'Salon Normand 10', address:'10 Rue des Roses, 14000 Caen', phone:'02 31 11 22 10', img:'https://via.placeholder.com/200x120?text=Salon+Normand+10'},
+function resize() {
+  // utiliser taille physique pour éviter flou sur écrans haute-DPI
+  const ratio = window.devicePixelRatio || 1;
+  const w = Math.floor(canvas.clientWidth * ratio);
+  const h = Math.floor(canvas.clientHeight * ratio);
+  if (canvas.width !== w || canvas.height !== h) {
+    canvas.width = w;
+    canvas.height = h;
+  }
+}
+window.addEventListener('resize', resize);
+resize();
 
-  // 10 Restaurants Normandie
-  {region:'Normandie', type:'Restaurant', name:'Le Gourmet', address:'12 Rue de la Paix, 14000 Caen', phone:'02 31 44 55 66', img:'https://via.placeholder.com/200x120?text=Le+Gourmet'},
-  {region:'Normandie', type:'Restaurant', name:'La Table Normande', address:'5 Rue du Château, 14000 Caen', phone:'02 31 44 55 67', img:'https://via.placeholder.com/200x120?text=La+Table+Normande'},
-  {region:'Normandie', type:'Restaurant', name:'Le Normand', address:'8 Rue des Lilas, 14000 Caen', phone:'02 31 44 55 68', img:'https://via.placeholder.com/200x120?text=Le+Normand'},
-  {region:'Normandie', type:'Restaurant', name:'Maison du Goût', address:'2 Rue du Marché, 14000 Caen', phone:'02 31 44 55 69', img:'https://via.placeholder.com/200x120?text=Maison+du+Goût'},
-  {region:'Normandie', type:'Restaurant', name:'Chez Pierre', address:'7 Rue de l’Église, 14000 Caen', phone:'02 31 44 55 70', img:'https://via.placeholder.com/200x120?text=Chez+Pierre'},
-  {region:'Normandie', type:'Restaurant', name:'L’Auberge Normande', address:'10 Rue du Moulin, 14000 Caen', phone:'02 31 44 55 71', img:'https://via.placeholder.com/200x120?text=L’Auberge+Normande'},
-  {region:'Normandie', type:'Restaurant', name:'Le Quai', address:'14 Rue du Port, 14000 Caen', phone:'02 31 44 55 72', img:'https://via.placeholder.com/200x120?text=Le+Quai'},
-  {region:'Normandie', type:'Restaurant', name:'La Mer', address:'3 Rue du Phare, 14000 Caen', phone:'02 31 44 55 73', img:'https://via.placeholder.com/200x120?text=La+Mer'},
-  {region:'Normandie', type:'Restaurant', name:'Le Pavillon', address:'6 Rue de la Plage, 14000 Caen', phone:'02 31 44 55 74', img:'https://via.placeholder.com/200x120?text=Le+Pavillon'},
-  {region:'Normandie', type:'Restaurant', name:'Les Délices', address:'9 Rue des Fleurs, 14000 Caen', phone:'02 31 44 55 75', img:'https://via.placeholder.com/200x120?text=Les+Délices'},
+/* État du jeu */
+let running = false;
+let lastTime = 0;
 
-  // 10 Boulangeries Normandie
-  {region:'Normandie', type:'Boulangerie', name:'La Fournée', address:'1 Rue du Marché, 14000 Caen', phone:'02 31 77 88 01', img:'https://via.placeholder.com/200x120?text=La+Fournée'},
-  {region:'Normandie', type:'Boulangerie', name:'Pain & Tradition', address:'3 Rue des Halles, 14000 Caen', phone:'02 31 77 88 02', img:'https://via.placeholder.com/200x120?text=Pain+%26+Tradition'},
-  {region:'Normandie', type:'Boulangerie', name:'Le Bon Pain', address:'5 Rue Saint-Pierre, 14000 Caen', phone:'02 31 77 88 03', img:'https://via.placeholder.com/200x120?text=Le+Bon+Pain'},
-  {region:'Normandie', type:'Boulangerie', name:'Maison du Pain', address:'6 Rue du Parc, 14000 Caen', phone:'02 31 77 88 04', img:'https://via.placeholder.com/200x120?text=Maison+du+Pain'},
-  {region:'Normandie', type:'Boulangerie', name:'Boulangerie Normande', address:'7 Rue des Lilas, 14000 Caen', phone:'02 31 77 88 05', img:'https://via.placeholder.com/200x120?text=Boulangerie+Normande'},
-  {region:'Normandie', type:'Boulangerie', name:'Le Fournil', address:'8 Rue du Château, 14000 Caen', phone:'02 31 77 88 06', img:'https://via.placeholder.com/200x120?text=Le+Fournil'},
-  {region:'Normandie', type:'Boulangerie', name:'La Baguette', address:'9 Rue des Roses, 14000 Caen', phone:'02 31 77 88 07', img:'https://via.placeholder.com/200x120?text=La+Baguette'},
-  {region:'Normandie', type:'Boulangerie', name:'Le Pain Doré', address:'10 Rue du Soleil, 14000 Caen', phone:'02 31 77 88 08', img:'https://via.placeholder.com/200x120?text=Le+Pain+Doré'},
-  {region:'Normandie', type:'Boulangerie', name:'Au Fournil', address:'11 Rue du Lac, 14000 Caen', phone:'02 31 77 88 09', img:'https://via.placeholder.com/200x120?text=Au+Fournil'},
-  {region:'Normandie', type:'Boulangerie', name:'Le Pain Normand', address:'12 Rue des Champs, 14000 Caen', phone:'02 31 77 88 10', img:'https://via.placeholder.com/200x120?text=Le+Pain+Normand'}
-];
+/* Player */
+const player = {
+  x: 0, y: 0,        // position en pixels (physique canvas coords)
+  vx: 0, vy: 0,
+  radius: 28,
+  color: '#FFD166',
+  grounded: false
+};
 
-let selectedRegion = '';
-let selectedCommerce = '';
+/* Monde / gravité */
+const GRAVITY = 1800;      // px/s^2
+const MOVE_SPEED = 320;    // px/s
+const JUMP_SPEED = 680;    // px/s
 
-function selectRegion(region) {
-  selectedRegion = region;
-  document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
-  updateCards();
+/* Input */
+const keys = { left:false, right:false, up:false };
+
+/* Simple ground: a platform at 3/4 height */
+function groundY() {
+  return canvas.height * 0.75;
 }
 
-function selectCommerce(commerce) {
-  selectedCommerce = commerce;
-  document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
-  updateCards();
+/* draw loop */
+function drawScene(dt, t) {
+  // clear (canvas already has background color via CSS background)
+  // but we must draw the sky gradient onto physical canvas
+  const w = canvas.width, h = canvas.height;
+  // sky gradient
+  const g = ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0, '#3b82f6');
+  g.addColorStop(1, '#2b6fd6');
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,w,h);
+
+  // ground (a band)
+  const gy = groundY();
+  ctx.fillStyle = '#0ea5e9';
+  ctx.fillRect(0, gy, w, h - gy);
+
+  // draw player (convert logical coords to canvas coords if using ratio)
+  ctx.save();
+  // player shadow
+  ctx.beginPath();
+  ctx.ellipse(player.x, gy + player.radius + 6, player.radius*0.9, player.radius*0.4, 0, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(0,0,0,0.12)';
+  ctx.fill();
+
+  // player body
+  ctx.beginPath();
+  ctx.arc(player.x, player.y, player.radius, 0, Math.PI*2);
+  ctx.fillStyle = player.color;
+  ctx.fill();
+
+  // eye
+  ctx.fillStyle = '#222';
+  ctx.beginPath();
+  ctx.arc(player.x + player.radius*0.18, player.y - player.radius*0.12, player.radius*0.12, 0, Math.PI*2);
+  ctx.fill();
+
+  // smile
+  ctx.beginPath();
+  ctx.strokeStyle = '#222';
+  ctx.lineWidth = 2;
+  ctx.arc(player.x, player.y+2, player.radius*0.45, 0.1*Math.PI, 0.9*Math.PI);
+  ctx.stroke();
+
+  ctx.restore();
 }
 
-function updateCards() {
-  const container = document.getElementById('cardsContainer');
-  container.innerHTML = '';
-  if (selectedRegion && selectedCommerce) {
-    const filtered = commerces.filter(c => c.region===selectedRegion && c.type===selectedCommerce);
-    filtered.forEach(c => {
-      const card = document.createElement('div');
-      card.className='card';
-      card.innerHTML=`
-        <img src="${c.img}" alt="${c.name}">
-        <div class="info">
-          <h3>${c.name}</h3>
-          <p>${c.address}</p>
-          <p>${c.phone}</p>
-        </div>`;
-      card.onclick=()=>showOverlay(c);
-      container.appendChild(card);
-    });
+/* update physics */
+function update(dt) {
+  // horizontal input
+  let ax = 0;
+  if (keys.left) ax = -1;
+  if (keys.right) ax = 1;
+
+  player.vx = ax * MOVE_SPEED;
+
+  // gravity
+  player.vy += GRAVITY * dt;
+
+  // integrate
+  player.x += player.vx * dt;
+  player.y += player.vy * dt;
+
+  // world bounds horizontally
+  const leftBound = player.radius + 10;
+  const rightBound = canvas.width - player.radius - 10;
+  if (player.x < leftBound) { player.x = leftBound; player.vx = 0; }
+  if (player.x > rightBound) { player.x = rightBound; player.vx = 0; }
+
+  // ground collision
+  const gy = groundY();
+  if (player.y + player.radius > gy) {
+    player.y = gy - player.radius;
+    player.vy = 0;
+    player.grounded = true;
+  } else {
+    player.grounded = false;
   }
 }
 
-function showOverlay(c) {
-  document.getElementById('overlayContent').innerHTML=`
-    <h2>${c.name}</h2>
-    <img src="${c.img}" alt="${c.name}">
-    <p><strong>Adresse:</strong> ${c.address}</p>
-    <p
+/* game loop */
+function loop(ts) {
+  if (!running) return;
+  if (!lastTime) lastTime = ts;
+  const dt = Math.min(0.033, (ts - lastTime) / 1000); // clamp dt
+  lastTime = ts;
 
+  update(dt);
+  drawScene(dt, ts);
+
+  requestAnimationFrame(loop);
+}
+
+/* start / stop */
+const stateLabel = document.getElementById('state');
+const playBtn = document.getElementById('playBtn');
+const playLabel = document.getElementById('playLabel');
+
+function centerPlayer() {
+  player.x = canvas.width / 2;
+  player.y = groundY() - player.radius;
+  player.vx = 0;
+  player.vy = 0;
+}
+
+function startGame() {
+  if (running) return;
+  running = true;
+  lastTime = 0;
+  centerPlayer();
+  stateLabel.textContent = 'En cours';
+  playLabel.textContent = 'Pause';
+  playBtn.setAttribute('aria-pressed','true');
+  requestAnimationFrame(loop);
+}
+
+function stopGame() {
+  running = false;
+  stateLabel.textContent = 'En pause';
+  playLabel.textContent = 'Jouer';
+  playBtn.setAttribute('aria-pressed','false');
+  // draw one final frame so user sees position
+  drawScene(0, performance.now());
+}
+
+/* Toggle on button */
+playBtn.addEventListener('click', ()=> {
+  if (running) stopGame(); else startGame();
+});
+
+/* Input handling */
+window.addEventListener('keydown', (e)=>{
+  if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = true;
+  if (e.key === 'ArrowRight' || e.key === 'd') keys.right = true;
+  if (e.key === ' ' || e.key === 'Spacebar') {
+    // jump
+    if (player.grounded) {
+      player.vy = -JUMP_SPEED;
+      player.grounded = false;
+    }
+    e.preventDefault();
+  }
+});
+
+window.addEventListener('keyup', (e)=>{
+  if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = false;
+  if (e.key === 'ArrowRight' || e.key === 'd') keys.right = false;
+});
+
+/* Touch + click on canvas to jump / move */
+canvas.addEventListener('click', (e)=>{
+  // click to jump if grounded
+  if (player.grounded && running) {
+    player.vy = -JUMP_SPEED;
+    player.grounded = false;
+  }
+});
+canvas.addEventListener('touchstart', (e)=>{
+  if (!running) return;
+  // simple: touch left/right half to move, tap to jump
+  const touch = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  const x = (touch.clientX - rect.left) * (canvas.width / rect.width);
+  if (x < canvas.width * 0.4) { keys.left = true; keys.right = false; } 
+  else if (x > canvas.width * 0.6) { keys.right = true; keys.left = false; }
+  else { if (player.grounded) { player.vy = -JUMP_SPEED; player.grounded = false; } }
+});
+canvas.addEventListener('touchend', (e)=>{
+  keys.left = false; keys.right = false;
+});
+
+/* initial draw and center player */
+centerPlayer();
+drawScene(0, 0);
+
+/* accessibility: space/enter on playBtn */
+playBtn.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    playBtn.click();
+  }
+});
+</script>
+</body>
+</html>
