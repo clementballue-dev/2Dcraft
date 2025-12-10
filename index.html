@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="utf-8" />
@@ -94,7 +95,7 @@
   <!-- bottom-right UI -->
   <div class="ui">
     <button id="joinBtn" class="btn">Simuler 2ème joueur</button>
-    <button id="toggle2PBtn" class="btn">Activer mode 2 joueurs local</button>
+    <button id="twoPlayerBtn" class="btn">Activer mode 2 joueurs local</button>
     <button id="playBtn" class="btn">JOUER</button>
   </div>
 
@@ -105,23 +106,15 @@
 <script>
 /* --------------------------
    Prototype Arène 2D (prototype étendu)
-   - Modifs demandées ajoutées :
-     * toutes les armes = 1 dégât
-     * player & bots = 10 HP
-     * toutes les 5 balles tirées -> reload automatique 3s
-     * distance limite pour les armes
-     * match = best of 3 rounds (3 rounds max)
-     * +10 couronnes au gagnant du match (classement local)
-   - J'ai ajouté pseudo + leaderboard local (localStorage)
-   - Ajout: mode 2 joueurs sur le même écran, activable
-   -------------------------- */
+   Mode multijoueur local optionnel ajouté
+   Toutes les armes = 1 dégât, reload auto toutes les 5 balles
+   Match best-of-3
+-------------------------- */
 
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
+let W=canvas.width,H=canvas.height;
 
-let W = canvas.width, H = canvas.height;
-
-// Game state
 let game = {
   running:false,
   roundStartTime:0,
@@ -131,22 +124,15 @@ let game = {
   bullets: [],
   roundWinner:null,
   lobbySimulated:false,
-  local2P:false, // mode 2 joueurs local
-  // match state:
-  match: {
-    roundsPerMatch: 3,
-    currentRound: 0,
-    playerRoundWins: 0,
-    enemyRoundWins: 0
-  }
+  localTwoPlayer:false,
+  match: { roundsPerMatch:3, currentRound:0, playerRoundWins:0, enemyRoundWins:0 }
 };
 
-// Settings UI
 const skinSelect = document.getElementById('skinSelect');
 const weaponSelect = document.getElementById('weaponSelect');
 const playBtn = document.getElementById('playBtn');
 const joinBtn = document.getElementById('joinBtn');
-const toggle2PBtn = document.getElementById('toggle2PBtn');
+const twoPlayerBtn = document.getElementById('twoPlayerBtn');
 const overlayScreen = document.getElementById('overlayScreen');
 const hudHpBar = document.getElementById('hpBar');
 const hpText = document.getElementById('hpText');
@@ -163,9 +149,7 @@ function rnd(min,max){ return Math.random()*(max-min)+min; }
 
 const PLAYER_SIZE = 44;
 const ENEMY_SIZE = 44;
-
-// Controls (AZERTY + arrows for 2P)
-const keys = { z:false,q:false,s:false,d:false, r:false, up:false,down:false,left:false,right:false };
+const keys = { z:false,q:false,s:false,d:false, r:false, up:false, down:false, left:false, right:false };
 window.addEventListener('keydown',(e)=>{
   const k=e.key.toLowerCase();
   if(k==='z') keys.z=true;
@@ -191,321 +175,166 @@ window.addEventListener('keyup',(e)=>{
   if(k==='arrowright') keys.right=false;
 });
 
-// Mouse aim & click
-let mouse = { x:W/2, y:H/2, down:false };
-canvas.addEventListener('mousemove', e=>{
-  const rect = canvas.getBoundingClientRect();
-  mouse.x = e.clientX - rect.left;
-  mouse.y = e.clientY - rect.top;
+let mouse={x:W/2,y:H/2,down:false};
+canvas.addEventListener('mousemove',e=>{
+  const rect=canvas.getBoundingClientRect();
+  mouse.x=e.clientX-rect.left;
+  mouse.y=e.clientY-rect.top;
 });
-canvas.addEventListener('mousedown', e=>{ if(e.button===0) mouse.down = true; });
-canvas.addEventListener('mouseup', e=>{ if(e.button===0) mouse.down = false; });
+canvas.addEventListener('mousedown', e=>{ if(e.button===0) mouse.down=true; });
+canvas.addEventListener('mouseup', e=>{ if(e.button===0) mouse.down=false; });
 
-// Basic weapon definitions
-const WEAPONS = {
-  pistol: { name:'Pistolet', mag:10, fireRate: 300, bulletSpeed:700, dmg:1, reloadTime:900, spread:6, range:800 },
+// Weapons
+const WEAPONS={
+  pistol: { name:'Pistolet', mag:10, fireRate:300, bulletSpeed:700, dmg:1, reloadTime:900, spread:6, range:800 },
   shotgun: { name:'Pompe', mag:6, fireRate:900, bulletSpeed:600, dmg:1, pellets:6, pelletSpread:18, reloadTime:1400, range:220 },
   sniper: { name:'Sniper', mag:1, fireRate:2000, bulletSpeed:1200, dmg:1, reloadTime:1800, scope:true, range:1400 },
   smg: { name:'Mitraillette', mag:30, fireRate:80, bulletSpeed:900, dmg:1, reloadTime:1100, spread:8, range:900 }
 };
 
-// Player constructor
-function createPlayer(id='p1', x=W/2, y=H/2){
-  const skin = parseInt(skinSelect.value,10)||0;
-  const weaponKey = weaponSelect.value || 'pistol';
-  const weapon = Object.assign({}, WEAPONS[weaponKey]);
-  weapon.key = weaponKey;
-  weapon.ammo = weapon.mag;
-  weapon.shotsSinceAutoReload = 0;
-  return {
-    id,
-    x, y,
-    vx:0, vy:0,
-    size:PLAYER_SIZE,
-    speed:200,
-    hp:10,
-    maxHp:10,
-    skin,
-    weapon,
-    canFire:true,
-    lastFire:0,
-    reloading:false,
-    alive:true
-  };
+function createPlayer(id,skin){
+  const weaponKey=weaponSelect.value||'pistol';
+  const weapon=Object.assign({},WEAPONS[weaponKey]);
+  weapon.key=weaponKey; weapon.ammo=weapon.mag; weapon.shotsSinceAutoReload=0;
+  return { id, x:randInt(80,W-80), y:randInt(80,H-80), vx:0,vy:0, size:PLAYER_SIZE, speed:200, hp:10, maxHp:10, skin, weapon, canFire:true, lastFire:0, reloading:false, alive:true };
 }
-
-// Enemy AI (unchanged)
 function createEnemy(i){
-  const wkey = randChoice(['pistol','shotgun','smg']);
-  const w = Object.assign({}, WEAPONS[wkey]);
-  w.key = wkey;
-  w.ammo = w.mag;
-  w.shotsSinceAutoReload = 0;
-  return {
-    id:'e'+i,
-    x: randInt(80, W-80),
-    y: randInt(80, H-80),
-    size:ENEMY_SIZE,
-    speed: 120,
-    hp:10,
-    maxHp:10,
-    state:'patrol',
-    targetPoint: null,
-    reactionTime: rnd(300,1200),
-    lastSeeTime:0,
-    lastAction:0,
-    weapon: w,
-    alive:true,
-    aimNoise: rnd(3,10)
-  };
+  const wkey=randChoice(['pistol','shotgun','smg']);
+  const w=Object.assign({},WEAPONS[wkey]);
+  w.key=wkey; w.ammo=w.mag; w.shotsSinceAutoReload=0;
+  return { id:'e'+i, x:randInt(80,W-80), y:randInt(80,H-80), size:ENEMY_SIZE, speed:120, hp:10, maxHp:10, state:'patrol', targetPoint:null, reactionTime:rnd(300,1200), lastSeeTime:0, lastAction:0, weapon:w, alive:true, aimNoise:rnd(3,10) };
 }
 
-// bullets
-function spawnBullet(x,y,dx,dy,owner,weaponKey,dmg, maxRange){
-  game.bullets.push({ x,y,vx:dx, vy:dy, owner, dmg, life:2000, weaponKey, ox:x, oy:y, maxRange:maxRange||1000 });
+function spawnBullet(x,y,vx,vy,owner,weaponKey,dmg,maxRange){
+  game.bullets.push({x,y,vx,vy,owner,dmg,life:2000,weaponKey,ox:x,oy:y,maxRange:maxRange||1000});
 }
 
-// Start Round
 function startRound(){
-  if(game.match.currentRound === 0){
-    game.match.playerRoundWins = 0;
-    game.match.enemyRoundWins = 0;
-  }
+  if(game.match.currentRound===0){ game.match.playerRoundWins=0; game.match.enemyRoundWins=0; }
   game.match.currentRound++;
-  game.bullets = [];
-  game.enemies = [];
-  game.players = [];
-  game.roundWinner = null;
-  game.roundStartTime = performance.now();
-  game.bgColor = `hsl(${randInt(0,360)} ${randInt(40,70)}% ${randInt(35,55)}%)`;
-
-  // player 1
-  const p1 = createPlayer('p1', W/2, H/2);
-  game.players.push(p1);
-
-  // player 2 if local2P
-  if(game.local2P){
-    const p2 = createPlayer('p2', W/2, H/2 + 60);
-    game.players.push(p2);
-  }
-
-  // spawn 1 enemy
-  for(let i=0;i<1;i++) game.enemies.push(createEnemy(i+1));
-
-  game.running = true;
-  overlayScreen.innerHTML = '';
-  updateHUD();
+  game.bullets=[]; game.enemies=[]; game.players=[]; game.roundWinner=null; game.roundStartTime=performance.now(); game.bgColor=`hsl(${randInt(0,360)} ${randInt(40,70)}% ${randInt(35,55)}%)`;
+  game.players.push(createPlayer('p1',parseInt(skinSelect.value,10)||0));
+  if(game.localTwoPlayer) game.players.push(createPlayer('p2',parseInt(skinSelect.value,10)||1));
+  game.enemies.push(createEnemy(1));
+  game.running=true; overlayScreen.innerHTML=''; updateHUD();
 }
 
-// Toggle local 2P
-toggle2PBtn.addEventListener('click', ()=>{
-  game.local2P = !game.local2P;
-  toggle2PBtn.textContent = game.local2P ? 'Mode 2 joueurs activé' : 'Activer mode 2 joueurs local';
-});
-
-// Simulate second player button (unchanged)
-joinBtn.addEventListener('click', ()=>{
-  game.lobbySimulated = !game.lobbySimulated;
+joinBtn.addEventListener('click',()=>{
+  game.lobbySimulated=!game.lobbySimulated;
   joinBtn.textContent = game.lobbySimulated ? '2ème joueur présent (simulé)' : 'Simuler 2ème joueur';
 });
 
-// Play button
-playBtn.addEventListener('click', ()=>{
-  if(game.lobbySimulated || game.local2P){
+twoPlayerBtn.addEventListener('click',()=>{
+  game.localTwoPlayer=!game.localTwoPlayer;
+  twoPlayerBtn.textContent = game.localTwoPlayer ? 'Mode 2 joueurs activé' : 'Activer mode 2 joueurs local';
+});
+
+playBtn.addEventListener('click',()=>{
+  if(game.lobbySimulated||game.localTwoPlayer){
     startRound();
   } else {
-    showOverlayMessage('En attente d’un autre joueur… (simulation)', 1500, startRound);
+    showOverlayMessage('En attente d’un autre joueur… (simulation)',1500,startRound);
   }
 });
 
-// Overlay helper
-function showOverlayMessage(msg, ms, cb){
-  overlayScreen.innerHTML = `<div class="screenBox"><h1>${msg}</h1></div>`;
+function showOverlayMessage(msg,ms,cb){
+  overlayScreen.innerHTML=`<div class="screenBox"><h1>${msg}</h1></div>`;
   setTimeout(()=>{ overlayScreen.innerHTML=''; if(cb) cb(); }, ms);
 }
 
-// Main loop
-let lastTime = performance.now();
+let lastTime=performance.now();
 function loop(now){
-  const dt = Math.min(50, now-lastTime)/1000;
-  lastTime = now;
-  update(dt);
-  render();
+  const dt=Math.min(50,now-lastTime)/1000;
+  lastTime=now;
+  update(dt); render();
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
 
-// HUD, leaderboard helpers (unchanged)
+// Local storage leaderboard
 function getSavedPseudo(){ return localStorage.getItem('mini_arena_pseudo') || ''; }
-function savePseudo(name){ if(!name) return; localStorage.setItem('mini_arena_pseudo', name); if(!getCrownsFor(name)) setCrownsFor(name,0); refreshLeaderboard(); }
-function getCrownsFor(name){ const v = localStorage.getItem('mini_arena_crowns_'+name); return v?parseInt(v,10):0; }
+function savePseudo(name){ if(!name) return; localStorage.setItem('mini_arena_pseudo',name); if(!getCrownsFor(name)) setCrownsFor(name,0); refreshLeaderboard(); }
+function getCrownsFor(name){ const v=localStorage.getItem('mini_arena_crowns_'+name); return v?parseInt(v,10):0; }
 function setCrownsFor(name,n){ localStorage.setItem('mini_arena_crowns_'+name,String(n)); }
 function addCrownsTo(name,add){ setCrownsFor(name,(getCrownsFor(name)||0)+add); }
 function refreshLeaderboard(){
-  const list=[];
-  for(let i=0;i<localStorage.length;i++){
-    const k = localStorage.key(i);
-    if(k && k.startsWith('mini_arena_crowns_')){
-      const name = k.replace('mini_arena_crowns_','');
-      const crowns = parseInt(localStorage.getItem(k),10) || 0;
-      list.push({name,crowns});
-    }
-  }
-  list.sort((a,b)=>b.crowns - a.crowns);
-  leaderboardEl.innerHTML='';
-  if(list.length===0) leaderboardEl.innerHTML='<div class="small">Aucun joueur pour l’instant</div>';
-  list.forEach(it=>{
-    const row = document.createElement('div'); row.className='lb-row';
-    row.innerHTML = `<div>${escapeHtml(it.name)}</div><div>${it.crowns} 👑</div>`;
-    leaderboardEl.appendChild(row);
-  });
+  const list=[]; for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k && k.startsWith('mini_arena_crowns_')){ const name=k.replace('mini_arena_crowns_',''); const crowns=parseInt(localStorage.getItem(k),10)||0; list.push({name,crowns}); } }
+  list.sort((a,b)=>b.crowns-a.crowns); leaderboardEl.innerHTML=''; if(list.length===0) leaderboardEl.innerHTML='<div class="small">Aucun joueur pour l’instant</div>';
+  list.forEach(it=>{ const row=document.createElement('div'); row.className='lb-row'; row.innerHTML=`<div>${escapeHtml(it.name)}</div><div>${it.crowns} 👑</div>`; leaderboardEl.appendChild(row); });
 }
 function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-savePseudoBtn.addEventListener('click', ()=>{
-  const name = pseudoInput.value.trim();
-  if(!name) return alert('Entre un pseudo valide');
-  savePseudo(name);
-  alert('Pseudo sauvegardé: '+name);
+savePseudoBtn.addEventListener('click',()=>{
+  const name=pseudoInput.value.trim(); if(!name) return alert('Entre un pseudo valide'); savePseudo(name); alert('Pseudo sauvegardé: '+name);
 });
 
-// Update HUD
+pseudoInput.value=getSavedPseudo();
+refreshLeaderboard();
+
 function updateHUD(){
-  const p = game.players[0];
-  if(!p) return;
-  const pct = Math.max(0,p.hp/p.maxHp)*100;
-  hudHpBar.style.width = pct+'%';
-  hpText.textContent = `Vie: ${p.hp} / ${p.maxHp}`;
-  ammoText.textContent = `Ammo: ${p.weapon.ammo} / ${p.weapon.mag}`;
-  roundText.textContent = `Round: ${game.match.currentRound} / ${game.match.roundsPerMatch}`;
+  const p=game.players[0]; if(!p) return;
+  const pct=Math.max(0,p.hp/p.maxHp)*100;
+  hudHpBar.style.width=pct+'%';
+  hpText.textContent=`Vie: ${p.hp} / ${p.maxHp}`;
+  ammoText.textContent=`Ammo: ${p.weapon.ammo} / ${p.weapon.mag}`;
+  roundText.textContent=`Round: ${game.match.currentRound} / ${game.match.roundsPerMatch}`;
 }
 
-/* ---------------------------
-   Game update/render (player 2 included)
---------------------------- */
+// --- Game update ---
 function update(dt){
   if(!game.running) return;
-  // update all players
-  game.players.forEach((p,i)=>{
+
+  game.players.forEach(p=>{
     if(!p.alive) return;
-
-    // input
-    let moveX=0, moveY=0;
-    if(p.id==='p1'){
-      if(keys.z) moveY-=1;
-      if(keys.s) moveY+=1;
-      if(keys.q) moveX-=1;
-      if(keys.d) moveX+=1;
-      // shooting
-      if(mouse.down && p.canFire && !p.reloading){
-        fireWeapon(p, mouse.x, mouse.y);
-      }
-      if(keys.r) reloadWeapon(p);
-    } else if(p.id==='p2'){
-      if(keys.up) moveY-=1;
-      if(keys.down) moveY+=1;
-      if(keys.left) moveX-=1;
-      if(keys.right) moveX+=1;
-      if(mouse.down && p.canFire && !p.reloading){ fireWeapon(p, mouse.x, mouse.y); }
-      if(keys.r) reloadWeapon(p);
-    }
-
-    const len = Math.hypot(moveX, moveY);
-    if(len>0){ moveX/=len; moveY/=len; }
-    p.x += moveX*p.speed*dt;
-    p.y += moveY*p.speed*dt;
-
-    // keep in canvas
-    p.x = Math.max(p.size/2, Math.min(W-p.size/2, p.x));
-    p.y = Math.max(p.size/2, Math.min(H-p.size/2, p.y));
+    let moveX=0,moveY=0;
+    if(p.id==='p1'){ if(keys.z) moveY-=1; if(keys.s) moveY+=1; if(keys.q) moveX-=1; if(keys.d) moveX+=1; if(mouse.down) fireWeapon(p,mouse.x,mouse.y); if(keys.r) reloadWeapon(p); }
+    else if(p.id==='p2'){ if(keys.up) moveY-=1; if(keys.down) moveY+=1; if(keys.left) moveX-=1; if(keys.right) moveX+=1; if(mouse.down) fireWeapon(p,mouse.x,mouse.y); if(keys.r) reloadWeapon(p); }
+    const len=Math.hypot(moveX,moveY); if(len>0){ moveX/=len; moveY/=len; }
+    p.x+=moveX*p.speed*dt; p.y+=moveY*p.speed*dt;
+    p.x=Math.max(p.size/2,Math.min(W-p.size/2,p.x)); p.y=Math.max(p.size/2,Math.min(H-p.size/2,p.y));
   });
 
-  // bullets
   for(let i=game.bullets.length-1;i>=0;i--){
-    const b = game.bullets[i];
-    b.x += b.vx*dt;
-    b.y += b.vy*dt;
-    b.life -= dt*1000;
-    if(b.life<=0 || Math.hypot(b.x-b.ox,b.y-b.oy) > b.maxRange){
-      game.bullets.splice(i,1);
-      continue;
-    }
-    // check collision with players
-    game.players.forEach(p=>{
-      if(p.id===b.owner) return;
-      if(!p.alive) return;
-      const dx=p.x-b.x, dy=p.y-b.y;
-      if(Math.hypot(dx,dy)<p.size/2){
-        p.hp-=b.dmg;
-        if(p.hp<=0) p.alive=false;
-        game.bullets.splice(i,1);
-      }
-    });
+    const b=game.bullets[i];
+    b.x+=b.vx*dt; b.y+=b.vy*dt; b.life-=dt*1000;
+    if(b.life<=0 || Math.hypot(b.x-b.ox,b.y-b.oy)>b.maxRange){ game.bullets.splice(i,1); continue; }
+    game.players.forEach(p=>{ if(p.id===b.owner) return; if(!p.alive) return; const dx=p.x-b.x,dy=p.y-b.y; if(Math.abs(dx)<p.size/2 && Math.abs(dy)<p.size/2){ p.hp-=b.dmg; game.bullets.splice(i,1); if(p.hp<=0){ p.alive=false; if(b.owner==='p1') game.match.playerRoundWins++; else game.match.enemyRoundWins++; checkRoundEnd(); } } });
   }
+}
 
+function fireWeapon(player,targetX,targetY){
+  const now=performance.now(); const w=player.weapon;
+  if(!player.canFire || player.reloading || w.ammo<=0) return;
+  if(now-player.lastFire<w.fireRate) return;
+  player.lastFire=now;
+  w.ammo--; w.shotsSinceAutoReload++;
+  const angle=Math.atan2(targetY-player.y,targetX-player.x)+rnd(-w.spread||0,w.spread||0)*Math.PI/180;
+  const speed=w.bulletSpeed||700;
+  spawnBullet(player.x,player.y,Math.cos(angle)*speed,Math.sin(angle)*speed,player.id,w.key,w.dmg,w.range);
+  if(w.shotsSinceAutoReload>=w.mag){ reloadWeapon(player); }
+}
+function reloadWeapon(player){ if(player.reloading) return; player.reloading=true; setTimeout(()=>{ player.weapon.ammo=player.weapon.mag; player.weapon.shotsSinceAutoReload=0; player.reloading=false; }, player.weapon.reloadTime); }
+
+function checkRoundEnd(){
+  if(game.match.playerRoundWins>=2){ game.running=false; addCrownsTo(getSavedPseudo(),1); refreshLeaderboard(); showOverlayMessage('Tu as gagné le match 🎉',2500); }
+  else if(game.match.enemyRoundWins>=2){ game.running=false; showOverlayMessage('Tu as perdu 😢',2500); }
+  else { setTimeout(()=>startRound(),1500); }
+}
+
+// --- Render ---
+function render(){
+  ctx.fillStyle=game.bgColor; ctx.fillRect(0,0,W,H);
+  game.players.forEach(p=>{
+    if(!p.alive) return;
+    ctx.fillStyle=['blue','red','green','yellow'][p.skin%4]; ctx.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size);
+  });
+  game.bullets.forEach(b=>{
+    ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(b.x,b.y,4,0,Math.PI*2); ctx.fill();
+  });
+  game.enemies.forEach(e=>{ if(!e.alive) return; ctx.fillStyle='purple'; ctx.fillRect(e.x-e.size/2,e.y-e.size/2,e.size,e.size); });
   updateHUD();
 }
 
-function render(){
-  // clear
-  ctx.fillStyle=game.bgColor;
-  ctx.fillRect(0,0,W,H);
-
-  // players
-  game.players.forEach(p=>{
-    ctx.fillStyle=['#00f','#f00','#0f0','#ff0'][p.skin]||'#00f';
-    if(!p.alive) ctx.globalAlpha=0.3;
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,p.size/2,0,2*Math.PI);
-    ctx.fill();
-    ctx.globalAlpha=1;
-  });
-
-  // bullets
-  ctx.fillStyle='#fff';
-  game.bullets.forEach(b=>{
-    ctx.beginPath();
-    ctx.arc(b.x,b.y,4,0,Math.PI*2);
-    ctx.fill();
-  });
-
-  // enemies
-  game.enemies.forEach(e=>{
-    ctx.fillStyle='#0ff';
-    ctx.beginPath();
-    ctx.arc(e.x,e.y,e.size/2,0,Math.PI*2);
-    ctx.fill();
-  });
-}
-
-function fireWeapon(player, targetX, targetY){
-  if(!player.canFire || player.reloading) return;
-  const dx=targetX-player.x;
-  const dy=targetY-player.y;
-  const len = Math.hypot(dx,dy);
-  const speed = player.weapon.bulletSpeed;
-  const vx = dx/len*speed;
-  const vy = dy/len*speed;
-  spawnBullet(player.x,player.y,vx,vy,player.id,player.weapon.key,player.weapon.dmg,player.weapon.range);
-  player.canFire=false;
-  player.lastFire = performance.now();
-  player.weapon.ammo--;
-  player.weapon.shotsSinceAutoReload++;
-  if(player.weapon.shotsSinceAutoReload>=5){
-    reloadWeapon(player);
-    player.weapon.shotsSinceAutoReload=0;
-  }
-  setTimeout(()=>{ player.canFire=true; }, player.weapon.fireRate);
-}
-
-function reloadWeapon(player){
-  if(player.reloading) return;
-  player.reloading = true;
-  setTimeout(()=>{
-    player.weapon.ammo = player.weapon.mag;
-    player.reloading=false;
-  }, player.weapon.reloadTime);
-}
 </script>
 </body>
 </html>
