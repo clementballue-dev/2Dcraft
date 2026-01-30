@@ -1,323 +1,219 @@
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Mini-arène (prototype)</title>
-<style>
-  html,body { height:100%; margin:0; background:#111; color:#eee; font-family:Arial,Helvetica,sans-serif; }
-  #gameWrap{ display:flex; height:100vh; align-items:center; justify-content:center; position:relative; }
-  canvas { background:#2b7; border:6px solid #222; box-shadow:0 6px 30px rgba(0,0,0,0.6); }
-  .ui {
-    position:absolute; right:18px; bottom:18px; z-index:20; display:flex; flex-direction:column; gap:8px;
-  }
-  .btn {
-    background:#0b84ff; color:white; border:none; padding:10px 14px; border-radius:8px; cursor:pointer;
-    font-weight:700; box-shadow:0 4px 14px rgba(11,132,255,0.35);
-  }
-  .panel {
-    position:absolute; left:18px; top:18px; background:rgba(0,0,0,0.55); padding:12px; border-radius:8px;
-    min-width:220px; color:#fff;
-  }
-  .row { margin:6px 0; }
-  label{display:block; font-size:13px; margin-bottom:6px;}
-  select,input[type=color],input[type=text] { width:100%; padding:6px; border-radius:6px; border:1px solid #444; background:#222; color:#fff;}
-  #overlayScreen {
-    position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:30;
-    pointer-events:none;
-  }
-  .screenBox {
-    pointer-events:auto;
-    background:rgba(10,10,10,0.9); color:#fff; padding:24px; border-radius:10px; text-align:center; width:min(600px,90%);
-    box-shadow:0 10px 40px rgba(0,0,0,0.7);
-  }
-  .screenBox h1{ margin:0 0 12px; font-size:28px; }
-  .hud {
-    position:absolute; left:50%; transform:translateX(-50%); top:12px; z-index:25; color:#fff; text-align:center;
-  }
-  .barWrap { width:260px; height:14px; background:#333; border-radius:8px; overflow:hidden; margin:0 auto; border:1px solid #222;}
-  .bar { height:100%; background:linear-gradient(90deg,#00d08a,#00a68f); width:100%; }
-  .infoRow{display:flex; gap:12px; justify-content:center; margin-top:8px; font-size:14px;}
-  .small { font-size:12px; opacity:0.9; }
-  .leaderboard { margin-top:8px; background:#111; padding:8px; border-radius:6px; border:1px solid #222; max-height:150px; overflow:auto; font-size:13px;}
-  .lb-row{ display:flex; justify-content:space-between; padding:4px 6px; border-bottom:1px solid #222; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Calculatrice</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #1a1a1a; color: white; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        
+        /* --- STYLE CALCULATRICE (LE LEURRE) --- */
+        .container { background-color: #000; padding: 20px; border-radius: 30px; text-align: center; width: 320px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        #calculatorInput { width: 100%; text-align: right; font-size: 3em; background: transparent; border: none; color: white; margin-bottom: 20px; outline: none; padding-right: 10px; box-sizing: border-box; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .btn { padding: 20px; font-size: 1.5em; border-radius: 50%; border: none; cursor: pointer; font-weight: 500; transition: 0.2s; display: flex; justify-content: center; align-items: center; height: 65px; width: 65px; }
+        .num { background: #333; color: white; }
+        .op { background: #ff9f0a; color: white; }
+        .special { background: #a5a5a5; color: black; }
+        .btn:active { filter: brightness(1.5); }
+        .zero { grid-column: span 2; width: 142px; border-radius: 40px; }
+
+        /* --- STYLE MESSAGERIE (L'APP CACHÉE) --- */
+        #messaging, #login, #signup { display: none; }
+        .app-container { display: none; width: 100vw; height: 100vh; background-color: #000; flex-direction: row; }
+        
+        #userList { width: 260px; background-color: #111; border-right: 1px solid #333; display: flex; flex-direction: column; }
+        #userList h3 { padding: 20px; color: #ff9f0a; margin: 0; font-size: 1.2em; border-bottom: 1px solid #222; }
+        .user-item { padding: 15px 20px; border-bottom: 1px solid #222; cursor: pointer; transition: 0.2s; }
+        .user-item:hover { background: #222; }
+        .nick-label { display: block; font-weight: bold; }
+        .real-name { font-size: 0.7em; color: #666; }
+
+        #messaging-main { flex-grow: 1; display: flex; flex-direction: column; background-color: #000; }
+        #chat-header { padding: 15px 20px; background: #111; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        #messages-box { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        
+        .bubble { padding: 10px 15px; border-radius: 18px; max-width: 70%; word-wrap: break-word; font-size: 0.95em; line-height: 1.4; }
+        .mine { align-self: flex-end; background: #007aff; color: white; border-bottom-right-radius: 4px; }
+        .theirs { align-self: flex-start; background: #262629; color: white; border-bottom-left-radius: 4px; }
+
+        .input-area { padding: 15px; background: #111; display: flex; gap: 10px; align-items: center; }
+        .input-area input { flex-grow: 1; padding: 12px; border-radius: 20px; border: 1px solid #333; background: #222; color: white; outline: none; }
+        
+        /* --- MOBILE --- */
+        @media (max-width: 600px) {
+            #userList { width: 80px; }
+            #userList h3, .nick-label, .real-name { display: none; }
+            .user-item { text-align: center; font-size: 1.5em; }
+        }
+    </style>
 </head>
 <body>
-<div id="gameWrap">
-  <canvas id="c" width="1000" height="600"></canvas>
 
-  <!-- left panel: choix skin/arme + pseudo + leaderboard -->
-  <div class="panel" id="panel">
-    <div class="row">
-      <label>Pseudo</label>
-      <input type="text" id="pseudoInput" placeholder="Ton pseudo">
-      <button class="btn" id="savePseudoBtn" style="margin-top:8px;">Sauvegarder pseudo</button>
+    <div id="calculator" class="container">
+        <input type="text" id="calculatorInput" readonly value="0">
+        <div class="calc-grid">
+            <button class="btn special" onclick="clearCalc()">AC</button>
+            <button class="btn special" onclick="deleteLast()">⌫</button>
+            <button class="btn special" onclick="addOp('%')">%</button>
+            <button class="btn op" onclick="addOp('/')">÷</button>
+            
+            <button class="btn num" onclick="addNum('7')">7</button>
+            <button class="btn num" onclick="addNum('8')">8</button>
+            <button class="btn num" onclick="addNum('9')">9</button>
+            <button class="btn op" onclick="addOp('*')">×</button>
+            
+            <button class="btn num" onclick="addNum('4')">4</button>
+            <button class="btn num" onclick="addNum('5')">5</button>
+            <button class="btn num" onclick="addNum('6')">6</button>
+            <button class="btn op" onclick="addOp('-')">−</button>
+            
+            <button class="btn num" onclick="addNum('1')">1</button>
+            <button class="btn num" onclick="addNum('2')">2</button>
+            <button class="btn num" onclick="addNum('3')">3</button>
+            <button class="btn op" onclick="addOp('+')">+</button>
+            
+            <button class="btn num zero" onclick="addNum('0')">0</button>
+            <button class="btn num" onclick="addNum('.')">.</button>
+            <button class="btn op" onclick="calculate()">=</button>
+        </div>
     </div>
 
-    <div class="row">
-      <label>Choisir le skin (aperçu simple)</label>
-      <select id="skinSelect">
-        <option value="0">Skin Bleu (par défaut)</option>
-        <option value="1">Skin Rouge</option>
-        <option value="2">Skin Vert</option>
-        <option value="3">Skin Jaune</option>
-      </select>
-    </div>
-    <div class="row">
-      <label>Choisir l'arme</label>
-      <select id="weaponSelect">
-        <option value="pistol">Pistolet</option>
-        <option value="shotgun">Pompe</option>
-        <option value="sniper">Sniper</option>
-        <option value="smg">Mitraillette</option>
-      </select>
+    <div id="login" class="container" style="background: #1c1c1e;">
+        <h2 style="margin-bottom:20px;">Accès Sécurisé</h2>
+        <input type="text" id="loginUser" placeholder="Utilisateur" style="width:85%; padding:12px; border-radius:10px; border:none; background:#3a3a3c; color:white;"><br><br>
+        <input type="password" id="loginPass" placeholder="Mot de passe" style="width:85%; padding:12px; border-radius:10px; border:none; background:#3a3a3c; color:white;"><br><br>
+        <button onclick="login()" style="width:92%; background:#ff9f0a; padding:15px; border-radius:10px; border:none; color:white; font-weight:bold;">Se connecter</button>
+        <p style="font-size:0.8em; margin-top:15px;">Pas de compte ? <a href="#" onclick="showSignup()" style="color:#ff9f0a;">S'inscrire</a></p>
     </div>
 
-    <div class="row small">Déplacements AZERTY: <strong>Z Q S D</strong> • Tir: <strong>Clic gauche</strong> • Recharger: <strong>R</strong></div>
-
-    <div class="row">
-      <label>Classement (couronnes)</label>
-      <div class="leaderboard" id="leaderboard"></div>
+    <div id="signup" class="container" style="background: #1c1c1e;">
+        <h2>Créer un compte</h2>
+        <input type="text" id="signUser" placeholder="Pseudo" style="width:85%; padding:12px; border-radius:10px; background:#3a3a3c; color:white; border:none;"><br><br>
+        <input type="password" id="signPass" placeholder="Mot de passe" style="width:85%; padding:12px; border-radius:10px; background:#3a3a3c; color:white; border:none;"><br><br>
+        <button onclick="signup()" style="width:92%; background:#28a745; padding:15px; border-radius:10px; border:none; color:white; font-weight:bold;">S'inscrire</button>
     </div>
-  </div>
 
-  <!-- HUD center top -->
-  <div class="hud" id="hud">
-    <div class="barWrap"><div id="hpBar" class="bar" style="width:100%"></div></div>
-    <div class="infoRow">
-      <div id="hpText">Vie: 10 / 10</div>
-      <div id="ammoText">Ammo: 10 / 10</div>
-      <div id="roundText">Round: 0 / 3</div>
+    <div id="messaging" class="app-container">
+        <div id="userList">
+            <h3>Contacts</h3>
+            <div id="contacts-list"></div>
+            <button onclick="location.reload()" style="background:transparent; color:#555; border:none; margin-top:auto; padding:20px; cursor:pointer;">VERROUILLER</button>
+        </div>
+        <div id="messaging-main">
+            <div id="chat-header">
+                <b id="active-chat-name">Sélectionnez un chat</b>
+                <button onclick="clearChat()" style="background:transparent; color:#ff3b30; border:none; cursor:pointer; font-size:0.8em;">Vider</button>
+            </div>
+            <div id="messages-box"></div>
+            <div class="input-area">
+                <input type="text" id="msgInput" placeholder="Message..." onkeypress="if(event.key==='Enter') send()">
+                <button onclick="send()" style="background: #007aff; border-radius:50%; width:40px; height:40px;">↑</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- bottom-right UI -->
-  <div class="ui">
-    <button id="twoPlayerBtn" class="btn">Activer Joueur 2</button>
-    <button id="playBtn" class="btn">JOUER</button>
-  </div>
+    <script>
+        // --- DATA ---
+        let currentUser = null, targetUser = null;
+        let db_messages = JSON.parse(localStorage.getItem('secret_chat_msgs')) || {};
+        let db_nicks = JSON.parse(localStorage.getItem('secret_chat_nicks')) || {};
+        let contactList = ['User1', 'User2', 'User3', 'User4'];
 
-  <!-- overlay screens -->
-  <div id="overlayScreen"></div>
-</div>
+        // --- CALCULATRICE LOGIQUE ---
+        const calcDisplay = document.getElementById('calculatorInput');
+        function addNum(n) { if(calcDisplay.value === "0") calcDisplay.value = n; else calcDisplay.value += n; }
+        function addOp(o) { calcDisplay.value += o; }
+        function clearCalc() { calcDisplay.value = "0"; }
+        function deleteLast() { calcDisplay.value = calcDisplay.value.slice(0, -1) || "0"; }
 
-<script>
-const canvas=document.getElementById('c');
-const ctx=canvas.getContext('2d');
-let W=canvas.width,H=canvas.height;
+        function calculate() {
+            let val = calcDisplay.value;
+            if(val === "5624") { showLogin(); return; } // CODE SECRET
+            try { 
+                calcDisplay.value = eval(val.replace('×', '*').replace('÷', '/')); 
+            } catch { 
+                calcDisplay.value = "Error"; setTimeout(clearCalc, 1000); 
+            }
+        }
 
-let game={
-  running:false,
-  roundStartTime:0,
-  bgColor:'#2b7',
-  players:[],
-  enemies:[],
-  bullets:[],
-  roundWinner:null,
-  twoPlayerLocal:false,
-  match:{
-    roundsPerMatch:3,
-    currentRound:0,
-    playerRoundWins:0,
-    enemyRoundWins:0
-  }
-};
+        // --- NAVIGATION ---
+        function hideAll() { document.querySelectorAll('.container, .app-container').forEach(e => e.style.display='none'); }
+        function showLogin() { hideAll(); document.getElementById('login').style.display='block'; }
+        function showSignup() { hideAll(); document.getElementById('signup').style.display='block'; }
+        function showApp() { hideAll(); document.getElementById('messaging').style.display='flex'; renderContacts(); }
 
-const skinSelect=document.getElementById('skinSelect');
-const weaponSelect=document.getElementById('weaponSelect');
-const playBtn=document.getElementById('playBtn');
-const twoPlayerBtn=document.getElementById('twoPlayerBtn');
-const overlayScreen=document.getElementById('overlayScreen');
-const hudHpBar=document.getElementById('hpBar');
-const hpText=document.getElementById('hpText');
-const ammoText=document.getElementById('ammoText');
-const roundText=document.getElementById('roundText');
+        // --- AUTH ---
+        function signup() {
+            let u = document.getElementById('signUser').value.trim();
+            let p = document.getElementById('signPass').value.trim();
+            if(u && p) { localStorage.setItem('auth_'+u, p); alert("Compte prêt"); showLogin(); }
+        }
+        function login() {
+            let u = document.getElementById('loginUser').value.trim();
+            let p = document.getElementById('loginPass').value.trim();
+            if(localStorage.getItem('auth_'+u) === p) { currentUser = u; showApp(); }
+            else alert("Accès refusé");
+        }
 
-const pseudoInput=document.getElementById('pseudoInput');
-const savePseudoBtn=document.getElementById('savePseudoBtn');
-const leaderboardEl=document.getElementById('leaderboard');
+        // --- CHAT LOGIQUE ---
+        function renderContacts() {
+            const container = document.getElementById('contacts-list');
+            container.innerHTML = contactList.map(u => `
+                <div class="user-item" onclick="selectChat('${u}')" oncontextmenu="setNick(event, '${u}')">
+                    <span class="nick-label">👤 ${db_nicks[u] || u}</span>
+                    ${db_nicks[u] ? `<span class="real-name">${u}</span>` : ''}
+                </div>
+            `).join('');
+        }
 
-function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
-function randChoice(arr){return arr[Math.floor(Math.random()*arr.length)];}
-function rnd(min,max){return Math.random()*(max-min)+min;}
+        function setNick(e, u) {
+            e.preventDefault();
+            let n = prompt("Surnom pour " + u, db_nicks[u] || u);
+            if(n !== null) {
+                if(n.trim()==="") delete db_nicks[u]; else db_nicks[u] = n.trim();
+                localStorage.setItem('secret_chat_nicks', JSON.stringify(db_nicks));
+                renderContacts();
+                if(targetUser === u) selectChat(u);
+            }
+        }
 
-const PLAYER_SIZE=44;
-const ENEMY_SIZE=44;
+        function selectChat(u) {
+            targetUser = u;
+            document.getElementById('active-chat-name').innerText = db_nicks[u] || u;
+            loadMessages();
+        }
 
-const keys={ z:false,q:false,s:false,d:false, r:false, i:false,k:false,j:false,l:false,m:false };
-window.addEventListener('keydown',e=>{
-  const k=e.key.toLowerCase();
-  if(k in keys) keys[k]=true;
-});
-window.addEventListener('keyup',e=>{
-  const k=e.key.toLowerCase();
-  if(k in keys) keys[k]=false;
-});
+        function loadMessages() {
+            const box = document.getElementById('messages-box');
+            if(!targetUser) return;
+            let history = db_messages[targetUser] || [];
+            box.innerHTML = history.map(m => `
+                <div class="bubble ${m.sender === currentUser ? 'mine' : 'theirs'}">
+                    ${m.text}
+                </div>
+            `).join('');
+            box.scrollTop = box.scrollHeight;
+        }
 
-let mouse={ x:W/2, y:H/2, down:false };
-canvas.addEventListener('mousemove',e=>{
-  const rect=canvas.getBoundingClientRect();
-  mouse.x=e.clientX-rect.left;
-  mouse.y=e.clientY-rect.top;
-});
-canvas.addEventListener('mousedown',e=>{ if(e.button===0) mouse.down=true; });
-canvas.addEventListener('mouseup',e=>{ if(e.button===0) mouse.down=false; });
+        function send() {
+            let input = document.getElementById('msgInput');
+            let txt = input.value.trim();
+            if(txt && targetUser) {
+                if(!db_messages[targetUser]) db_messages[targetUser] = [];
+                db_messages[targetUser].push({ sender: currentUser, text: txt });
+                localStorage.setItem('secret_chat_msgs', JSON.stringify(db_messages));
+                input.value = ""; loadMessages();
+            }
+        }
 
-const WEAPONS={
-  pistol:{ name:'Pistolet', mag:10, fireRate:300, bulletSpeed:700, dmg:1, reloadTime:900, spread:6, range:800 },
-  shotgun:{ name:'Pompe', mag:6, fireRate:900, bulletSpeed:600, dmg:1, pellets:6, pelletSpread:18, reloadTime:1400, range:220 },
-  sniper:{ name:'Sniper', mag:1, fireRate:2000, bulletSpeed:1200, dmg:1, reloadTime:1800, scope:true, range:1400 },
-  smg:{ name:'Mitraillette', mag:30, fireRate:80, bulletSpeed:900, dmg:1, reloadTime:1100, spread:8, range:900 }
-};
-
-function createPlayer(skinOverride=0, weaponOverride='pistol', pos){ 
-  const skin=skinOverride||parseInt(skinSelect.value,10)||0;
-  const weapon=Object.assign({},WEAPONS[weaponOverride||weaponSelect.value||'pistol']);
-  weapon.key=weaponOverride||weaponSelect.value||'pistol';
-  weapon.ammo=weapon.mag;
-  weapon.shotsSinceAutoReload=0;
-  return { id:'p'+(game.players.length+1), x:pos.x, y:pos.y, vx:0, vy:0, size:PLAYER_SIZE, speed:200, hp:10, maxHp:10, skin, weapon, canFire:true, lastFire:0, reloading:false, alive:true };
-}
-
-function createEnemy(i){
-  const wkey=randChoice(['pistol','shotgun','smg']);
-  const w=Object.assign({},WEAPONS[wkey]);
-  w.key=wkey; w.ammo=w.mag; w.shotsSinceAutoReload=0;
-  return { id:'e'+i, x:randInt(80,W-80), y:randInt(80,H-80), size:ENEMY_SIZE, speed:120, hp:10, maxHp:10, state:'patrol', targetPoint:null, reactionTime:rnd(300,1200), lastSeeTime:0, lastAction:0, weapon:w, alive:true, aimNoise:rnd(3,10) };
-}
-
-function spawnBullet(x,y,dx,dy,owner,weaponKey,dmg,maxRange){
-  game.bullets.push({ x,y,vx:dx,vy:dy,owner,dmg,life:2000,weaponKey,ox:x,oy:y,maxRange:maxRange||1000 });
-}
-
-function startRound(){
-  if(game.match.currentRound===0){ game.match.playerRoundWins=0; game.match.enemyRoundWins=0; }
-  game.match.currentRound++;
-  game.bullets=[]; game.enemies=[]; game.players=[]; game.roundWinner=null;
-  game.roundStartTime=performance.now(); game.bgColor=`hsl(${randInt(0,360)} ${randInt(40,70)}% ${randInt(35,55)}%)`;
-  
-  const p1=createPlayer(0,null,{x:W/4,y:H/2}); game.players.push(p1);
-  if(game.twoPlayerLocal){ const p2=createPlayer(1,null,{x:3*W/4,y:H/2}); game.players.push(p2); }
-
-  for(let i=0;i<1;i++) game.enemies.push(createEnemy(i+1));
-
-  game.running=true; overlayScreen.innerHTML=''; updateHUD();
-}
-
-twoPlayerBtn.addEventListener('click',()=>{
-  game.twoPlayerLocal=!game.twoPlayerLocal;
-  twoPlayerBtn.textContent=game.twoPlayerLocal ? 'Joueur 2 activé' : 'Activer Joueur 2';
-});
-
-playBtn.addEventListener('click',()=>{ startRound(); });
-
-function showOverlayMessage(msg,ms,cb){ overlayScreen.innerHTML=`<div class="screenBox"><h1>${msg}</h1></div>`; setTimeout(()=>{ overlayScreen.innerHTML=''; if(cb) cb(); },ms); }
-
-let lastTime=performance.now();
-function loop(now){ const dt=Math.min(50,now-lastTime)/1000; lastTime=now; update(dt); render(); requestAnimationFrame(loop); }
-requestAnimationFrame(loop);
-
-function getSavedPseudo(){ return localStorage.getItem('mini_arena_pseudo')||''; }
-function savePseudo(name){ if(!name) return; localStorage.setItem('mini_arena_pseudo',name); if(!getCrownsFor(name)) setCrownsFor(name,0); refreshLeaderboard(); }
-function getCrownsFor(name){ const v=localStorage.getItem('mini_arena_crowns_'+name); return v?parseInt(v,10):0; }
-function setCrownsFor(name,n){ localStorage.setItem('mini_arena_crowns_'+name,String(n)); }
-function addCrownsTo(name,add){ const cur=getCrownsFor(name)||0; setCrownsFor(name,cur+add); }
-function refreshLeaderboard(){ const list=[]; for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.startsWith('mini_arena_crowns_')){ const name=k.replace('mini_arena_crowns_',''); const crowns=parseInt(localStorage.getItem(k),10)||0; list.push({name,crowns}); } } list.sort((a,b)=>b.crowns-a.crowns); leaderboardEl.innerHTML=''; if(list.length===0) leaderboardEl.innerHTML='<div class="small">Aucun joueur pour l’instant</div>'; list.forEach(it=>{ const row=document.createElement('div'); row.className='lb-row'; row.innerHTML=`<div>${escapeHtml(it.name)}</div><div>${it.crowns} 👑</div>`; leaderboardEl.appendChild(row); }); }
-function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-savePseudoBtn.addEventListener('click',()=>{ const name=pseudoInput.value.trim(); if(!name) return alert('Entre un pseudo valide'); savePseudo(name); alert('Pseudo sauvegardé: '+name); });
-pseudoInput.value=getSavedPseudo(); refreshLeaderboard();
-
-function updateHUD(){ const p=game.players[0]; if(!p) return; const pct=Math.max(0,p.hp/p.maxHp)*100; hudHpBar.style.width=pct+'%'; hpText.textContent=`Vie: ${p.hp} / ${p.maxHp}`; ammoText.textContent=`Ammo: ${p.weapon.ammo} / ${p.weapon.mag}`; roundText.textContent=`Round: ${game.match.currentRound} / ${game.match.roundsPerMatch}`; }
-
-function update(dt){
-  if(!game.running) return;
-  game.players.forEach((p,i)=>{
-    if(!p.alive) return;
-    let mx=0,my=0;
-    if(i===0){ if(keys.z) my-=1; if(keys.s) my+=1; if(keys.q) mx-=1; if(keys.d) mx+=1; }
-    else{ if(keys.i) my-=1; if(keys.k) my+=1; if(keys.j) mx-=1; if(keys.l) mx+=1; }
-    if(mx!==0||my!==0){ const len=Math.hypot(mx,my); mx/=len; my/=len; p.x+=mx*p.speed*dt; p.y+=my*p.speed*dt; }
-    p.x=Math.max(p.size/2,Math.min(W-p.size/2,p.x));
-    p.y=Math.max(p.size/2,Math.min(H-p.size/2,p.y));
-  });
-
-  handleFiring(game.players[0],mouse.x,mouse.y,true);
-  if(game.twoPlayerLocal) handleFiring(game.players[1],keys.j||keys.l?mouse.x:W*3/4,keys.i||keys.k?mouse.y:H/2,true);
-
-  game.enemies.forEach(enemyAIUpdate.bind(null,dt));
-
-  for(let i=game.bullets.length-1;i>=0;i--){
-    const b=game.bullets[i]; b.x+=b.vx*dt; b.y+=b.vy*dt; b.life-=dt*1000;
-    const distTravelled=Math.hypot(b.x-b.ox,b.y-b.oy);
-    if(b.life<=0||b.x<-50||b.x>W+50||b.y<-50||b.y>H+50||distTravelled>b.maxRange){ game.bullets.splice(i,1); continue; }
-    if(b.owner.startsWith('p')){
-      game.enemies.forEach(e=>{ if(!e.alive) return; if(pointInRect(b.x,b.y,e.x-e.size/2,e.y-e.size/2,e.size,e.size)){ e.hp-=b.dmg; if(e.hp<=0){ e.alive=false; } game.bullets.splice(i,1); } });
-    } else { game.players.forEach(p=>{ if(!p.alive) return; if(pointInRect(b.x,b.y,p.x-p.size/2,p.y-p.size/2,p.size,p.size)){ p.hp-=b.dmg; if(p.hp<=0){ p.alive=false; game.running=false; endRound(false); } game.bullets.splice(i,1); } }); }
-  }
-
-  const aliveEnemies=game.enemies.filter(e=>e.alive);
-  if(aliveEnemies.length===0){ game.running=false; endRound(true); }
-
-  updateHUD();
-}
-
-function pointInRect(px,py,rx,ry,rw,rh){ return px>=rx&&px<=rx+rw&&py>=ry&&py<=ry+rh; }
-
-function handleFiring(shooter,targetX,targetY,isPlayer){
-  if(!shooter.alive||shooter.reloading) return;
-  const w=shooter.weapon; if(w.ammo<=0){ reloadWeapon(shooter,w.reloadTime); return; }
-  const now=performance.now();
-  if(isPlayer&&mouse.down&&(now-shooter.lastFire>=w.fireRate)){
-    fireWeapon(shooter,targetX,targetY); shooter.lastFire=now; w.ammo--; if(w.ammo<=0) reloadWeapon(shooter,w.reloadTime);
-  }
-}
-
-function fireWeapon(shooter,targetX,targetY){
-  const w=shooter.weapon;
-  const dx=targetX-shooter.x, dy=targetY-shooter.y;
-  const angle=Math.atan2(dy,dx);
-  if(w.pellets){
-    for(let i=0;i<w.pellets;i++){
-      const spread=(Math.random()-0.5)*w.pelletSpread*Math.PI/180;
-      spawnBullet(shooter.x,shooter.y,Math.cos(angle+spread)*w.bulletSpeed,Math.sin(angle+spread)*w.bulletSpeed,shooter.id,w.key,w.dmg,w.range);
-    }
-  } else {
-    const spread=(w.spread||0)*(Math.random()-0.5)*Math.PI/180;
-    spawnBullet(shooter.x,shooter.y,Math.cos(angle+spread)*w.bulletSpeed,Math.sin(angle+spread)*w.bulletSpeed,shooter.id,w.key,w.dmg,w.range);
-  }
-}
-
-function reloadWeapon(player,time){
-  if(player.reloading) return;
-  player.reloading=true;
-  setTimeout(()=>{ player.weapon.ammo=player.weapon.mag; player.reloading=false; },time);
-}
-
-function enemyAIUpdate(dt,enemy){
-  if(!enemy.alive) return;
-  if(!enemy.targetPoint||Math.hypot(enemy.targetPoint.x-enemy.x,enemy.targetPoint.y-enemy.y)<4){ enemy.targetPoint={x:randInt(50,W-50),y:randInt(50,H-50)}; }
-  const dx=enemy.targetPoint.x-enemy.x; const dy=enemy.targetPoint.y-enemy.y; const len=Math.hypot(dx,dy);
-  enemy.x+=dx/len*enemy.speed*dt; enemy.y+=dy/len*enemy.speed*dt;
-}
-
-function render(){
-  ctx.fillStyle=game.bgColor;
-  ctx.fillRect(0,0,W,H);
-  game.players.forEach(p=>{ if(!p.alive) return; ctx.fillStyle=['#3498db','#e74c3c','#2ecc71','#f1c40f'][p.skin]||'#3498db'; ctx.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size); });
-  game.enemies.forEach(e=>{ if(!e.alive) return; ctx.fillStyle='#ff0000'; ctx.fillRect(e.x-e.size/2,e.y-e.size/2,e.size,e.size); });
-  game.bullets.forEach(b=>{ ctx.fillStyle='#fff'; ctx.fillRect(b.x-3,b.y-3,6,6); });
-}
-
-function endRound(playerWon){
-  if(playerWon){
-    addCrownsTo(getSavedPseudo(),1);
-    showOverlayMessage('Round gagné ! +1 👑',1000,()=>{ if(game.match.currentRound<game.match.roundsPerMatch) startRound(); else showOverlayMessage('Match terminé !',2000); refreshLeaderboard(); });
-  } else {
-    showOverlayMessage('Round perdu !',1000,()=>{ if(game.match.currentRound<game.match.roundsPerMatch) startRound(); else showOverlayMessage('Match terminé !',2000); });
-  }
-}
-
-window.addEventListener('resize',()=>{ W=canvas.width; H=canvas.height; });
-</script>
+        function clearChat() {
+            if(targetUser && confirm("Supprimer l'historique ?")) {
+                db_messages[targetUser] = [];
+                localStorage.setItem('secret_chat_msgs', JSON.stringify(db_messages));
+                loadMessages();
+            }
+        }
+    </script>
 </body>
 </html>
