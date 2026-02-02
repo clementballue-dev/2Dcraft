@@ -1,7 +1,12 @@
-touch index.htlm
-git add index.html
-git commit -m "Ajout interface choix commerce"
-git push
-git add index.html
-git commit -m "Ajout sélection région"
-git push
+.env# Sécurité : NE JAMAIS PUBLIER LA CLÉ
+.env
+
+# Dépendances : Inutile de les envoyer (trop lourd)
+node_modules/
+
+# Fichiers système inutiles
+.DS_Store
+Thumbs.db
+
+# Logs d'erreurs
+npm-debug.log*
