@@ -2,13 +2,14 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Studio de Jeu</title>
+    <title>Builder Pro AI Studio</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
     <style>
         :root { 
-            --bg-soft: #f4f4f2; /* Blanc cassé moins pétant */
+            --bg-soft: #f4f4f2; 
             --accent: #2d3436; 
             --border: #dcdcdc;
+            --ai-color: #6366f1;
         }
         body { 
             font-family: 'Segoe UI', sans-serif; 
@@ -16,61 +17,78 @@
             background: var(--bg-soft); 
             height: 100vh; 
             display: flex; 
-            flex-direction: column; 
+            flex-direction: column;
+            overflow: hidden;
         }
         
-        /* Barre du haut simplifiée */
+        /* Barre du haut */
         header { 
             background: white; 
             padding: 10px 20px; 
             border-bottom: 1px solid var(--border); 
             display: flex; 
             align-items: center; 
-            gap: 10px;
+            gap: 12px;
+            z-index: 100;
         }
         
-        .logo { font-weight: bold; color: var(--accent); margin-right: 15px; }
-        input { border: 1px solid var(--border); padding: 8px; border-radius: 4px; outline: none; }
+        .logo { font-weight: 900; color: var(--accent); letter-spacing: -1px; margin-right: 10px; }
+        
+        #ai-prompt { 
+            flex: 1;
+            border: 2px solid var(--ai-color); 
+            padding: 8px 15px; 
+            border-radius: 20px; 
+            outline: none;
+            font-size: 14px;
+        }
         
         button { 
             background: white; 
             border: 1px solid var(--accent); 
             padding: 8px 15px; 
-            border-radius: 4px; 
+            border-radius: 6px; 
             cursor: pointer; 
-            font-size: 13px;
-            transition: 0.2s;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
         }
         button:hover { background: var(--accent); color: white; }
-        .btn-run { background: #2ecc71; border-color: #27ae60; color: white; font-weight: bold; }
-        .btn-run:hover { background: #27ae60; }
+        
+        .btn-ai { background: var(--ai-color); color: white; border: none; }
+        .btn-run { background: #2ecc71; color: white; border: none; }
 
         /* Zone de travail */
-        main { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; }
+        main { flex: 1; position: relative; }
 
-        /* Éditeur flottant (Masqué par défaut) */
+        /* Éditeur Flottant */
         #editor-wrapper {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 10;
-            display: none; /* Caché au début */
+            top: 15px;
+            left: 15px;
+            z-index: 50;
+            display: none; 
             flex-direction: column;
-            width: 400px;
-            height: 500px;
+            width: 450px;
+            height: 80%;
             background: white;
             border: 1px solid var(--border);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border-radius: 8px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border-radius: 12px;
         }
+        
+        .editor-header { padding: 10px; background: #fdfdfd; border-bottom: 1px solid var(--border); border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; }
+        
         textarea { 
             flex: 1; 
             padding: 15px; 
             border: none; 
             resize: none; 
             outline: none; 
-            font-family: monospace;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
             background: #fafafa;
+            border-radius: 0 0 12px 12px;
         }
 
         /* Container du Jeu */
@@ -80,19 +98,28 @@
 <body>
 
 <header>
-    <div class="logo">BUILDER PRO</div>
-    <input type="text" id="proj-name" placeholder="Nom du projet">
-    <button onclick="toggleEditor()">📝 ÉCRIRE LE CODE</button>
-    <button onclick="document.getElementById('file-input').click()">📁 IMPORTER ASSET</button>
-    <button class="btn-run" onclick="runGame()">▶ LANCER LE RÉSULTAT</button>
+    <div class="logo">BUILDER.AI</div>
+    
+    <input type="text" id="ai-prompt" placeholder="Décris ton idée (ex: une pluie de balles bleues)...">
+    <button class="btn-ai" onclick="askAI()">🤖 GÉNÉRER VIA IA</button>
+
+    <div style="width: 1px; height: 30px; background: #ddd; margin: 0 10px;"></div>
+
+    <input type="text" id="proj-name" placeholder="Nom du projet" style="width: 150px; border: 1px solid #ddd; padding: 8px; border-radius: 4px;">
+    <button onclick="toggleEditor()">📝 CODE</button>
+    <button onclick="document.getElementById('file-input').click()">📁 ASSETS</button>
+    <button class="btn-run" onclick="runGame()">▶ LANCER</button>
+    
     <input type="file" id="file-input" style="display:none" onchange="handleFileUpload(this)">
 </header>
 
 <main>
     <div id="editor-wrapper">
-        <div style="padding: 10px; border-bottom: 1px solid var(--border); font-size: 12px; font-weight: bold;">ÉDITEUR JS</div>
-        <textarea id="code-editor" placeholder="Tapez votre code ici...">// Exemple :
-this.add.circle(400, 300, 50, 0x2d3436);</textarea>
+        <div class="editor-header">
+            <span>index.js</span>
+            <span style="color: #999; cursor: pointer;" onclick="toggleEditor()">✖</span>
+        </div>
+        <textarea id="code-editor" spellcheck="false">// Ton code apparaîtra ici...</textarea>
     </div>
 
     <div id="game-container">
@@ -104,27 +131,51 @@ this.add.circle(400, 300, 50, 0x2d3436);</textarea>
     let game = null;
     let assets = [];
 
-    // Afficher ou masquer l'éditeur
+    // --- LOGIQUE IA ---
+    async function askAI() {
+        const prompt = document.getElementById('ai-prompt').value;
+        const editor = document.getElementById('code-editor');
+        if (!prompt) return alert("Décris ce que tu veux d'abord !");
+
+        editor.value = "// L'IA travaille sur votre code...";
+        document.getElementById('editor-wrapper').style.display = 'flex';
+
+        /* NOTE: Pour utiliser une vraie IA, remplace ce bloc par l'appel API 
+           vu précédemment. Ici, on simule une réponse pour l'exemple.
+        */
+        setTimeout(() => {
+            if(prompt.toLowerCase().includes("balle") || prompt.toLowerCase().includes("pluie")) {
+                editor.value = `// Code généré pour : ${prompt}\nfor(let i=0; i<50; i++) {\n  let x = Math.random() * 800;\n  let y = Math.random() * -500;\n  let ball = this.add.circle(x, y, 10, 0x6366f1);\n  this.physics.add.existing(ball);\n  ball.body.setGravityY(300);\n  ball.body.setBounce(0.8, 0.8);\n  ball.body.setCollideWorldBounds(true);\n}`;
+            } else {
+                editor.value = `// Code généré pour : ${prompt}\nconst txt = this.add.text(400, 300, "${prompt}", { fontSize: '32px', fill: '#2d3436' });\ntxt.setOrigin(0.5);`;
+            }
+            runGame();
+        }, 1500);
+    }
+
+    // --- GESTION ÉDITEUR ---
     function toggleEditor() {
         const ed = document.getElementById('editor-wrapper');
         ed.style.display = (ed.style.display === 'none' || ed.style.display === '') ? 'flex' : 'none';
     }
 
+    // --- GESTION ASSETS ---
     function handleFileUpload(input) {
         const file = input.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                const name = file.name.split('.')[0].replace(/\s/g, '_');
+                const name = file.name.split('.')[0].replace(/[^a-z0-9]/gi, '_');
                 assets.push({ name, data: e.target.result, type: file.type });
-                alert("Asset '" + name + "' importé !");
-                // On ouvre l'éditeur pour qu'il puisse coder avec
+                alert("Asset '" + name + "' ajouté !");
                 document.getElementById('editor-wrapper').style.display = 'flex';
+                document.getElementById('code-editor').value += `\nthis.add.image(400, 300, '${name}');`;
             };
             reader.readAsDataURL(file);
         }
     }
 
+    // --- LANCEMENT DU JEU ---
     function runGame() {
         if (game) { game.destroy(true); document.getElementById('phaser-app').innerHTML = ''; }
 
@@ -136,6 +187,7 @@ this.add.circle(400, 300, 50, 0x2d3436);</textarea>
             height: window.innerHeight - 60,
             parent: 'phaser-app',
             backgroundColor: '#f4f4f2',
+            physics: { default: 'arcade', arcade: { gravity: { y: 0 } } },
             scene: {
                 preload: function() {
                     assets.forEach(a => {
@@ -146,12 +198,11 @@ this.add.circle(400, 300, 50, 0x2d3436);</textarea>
                     try {
                         const fn = new Function(userCode);
                         fn.call(this);
-                    } catch (e) { console.error(e); }
+                    } catch (e) { console.error("Erreur de script:", e); }
                 }
             }
         };
         game = new Phaser.Game(config);
-        // On cache l'éditeur pour voir le jeu
         document.getElementById('editor-wrapper').style.display = 'none';
     }
 </script>
