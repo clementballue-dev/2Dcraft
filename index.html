@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Journal Personnel - Archives</title>
+    <title>Journal Interactif - Réactions</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; background: #f0f2f5; overflow: hidden; }
         
@@ -15,42 +16,43 @@
 
         /* Contenu Principal */
         #main-wrapper { flex: 1; display: flex; flex-direction: column; }
-        
-        /* Barre du haut (Header) avec Calendrier */
-        #top-bar { 
-            background: white; padding: 15px 40px; border-bottom: 1px solid #ddd; 
-            display: flex; justify-content: space-between; align-items: center; 
-        }
-        .calendar-container { display: flex; align-items: center; gap: 10px; font-weight: bold; color: #1a1a2e; }
-        #date-picker { padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-family: inherit; cursor: pointer; }
+        #top-bar { background: white; padding: 15px 40px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        #main-content { flex: 1; padding: 20px 40px; overflow-y: auto; }
 
-        #main-content { flex: 1; padding: 40px; overflow-y: auto; }
-        .news-card { 
-            background: white; padding: 25px; border-radius: 12px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px; 
-            position: relative; animation: fadeIn 0.4s;
-        }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        .news-card .badge { background: #4cc9f0; color: #1a1a2e; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
-        .delete-btn { position: absolute; top: 20px; right: 20px; background: #ff4d4d; color: white; border: none; border-radius: 5px; cursor: pointer; padding: 5px 10px; display: none; }
+        /* Zone d'écriture */
+        #editor-zone { display: none; background: white; padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 2px solid #4cc9f0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        input, textarea, select { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        textarea { grid-column: span 2; }
+        .publish-btn { grid-column: span 2; background: #4cc9f0; color: #1a1a2e; border: none; padding: 12px; font-weight: bold; cursor: pointer; border-radius: 8px; }
 
-        /* Admin Panel */
-        #admin-panel { 
-            position: fixed; bottom: 80px; left: 20px; 
-            background: #1a1a2e; color: white; padding: 20px; 
-            border-radius: 12px; display: none; width: 220px; z-index: 100;
+        /* Articles */
+        .news-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; position: relative; }
+        .badge { background: #e0f7fa; color: #00838f; padding: 5px 12px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; }
+        
+        /* Interactions (Votes + Réactions) */
+        .interaction-bar { margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; display: flex; flex-direction: column; gap: 15px; }
+        .stars { color: #ffd700; }
+        .star-btn { background: none; border: none; cursor: pointer; font-size: 1.4rem; color: #ccc; padding: 0; }
+        .star-btn.active { color: #ffd700; }
+
+        .reactions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .react-btn { 
+            background: #f8f9fa; border: 1px solid #ddd; border-radius: 20px; 
+            padding: 5px 12px; cursor: pointer; transition: 0.2s; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 5px;
         }
-        #admin-panel input, #admin-panel textarea, #admin-panel select { 
-            width: 100%; margin-bottom: 10px; border-radius: 6px; border: none; padding: 10px; background: #0f0f1e; color: white; box-sizing: border-box;
-        }
-        #admin-toggle { position: fixed; bottom: 20px; left: 20px; background: #1a1a2e; color: #4cc9f0; border: 1px solid #4cc9f0; padding: 10px 15px; border-radius: 8px; cursor: pointer; z-index: 101; }
+        .react-btn:hover { background: #e9ecef; transform: scale(1.05); }
+        .react-btn span { font-weight: bold; color: #1a1a2e; }
+
+        .delete-btn { position: absolute; top: 20px; right: 20px; background: #ff4d4d; color: white; border: none; border-radius: 5px; cursor: pointer; padding: 5px 10px; }
+        #admin-lock { position: fixed; bottom: 20px; right: 20px; background: #1a1a2e; color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div id="sidebar">
-        <h2>JOURNAL</h2>
+        <h2>JOURNAL HUB</h2>
         <div class="menu-item active" onclick="changeCategory('Tout')">🏠 Tout voir</div>
         <div class="menu-item" onclick="changeCategory('Sport')">⚽ Sport</div>
         <div class="menu-item" onclick="changeCategory('Tech')">💻 Tech</div>
@@ -61,118 +63,128 @@
 
     <div id="main-wrapper">
         <div id="top-bar">
-            <h1 id="current-cat" style="margin:0; font-size: 1.5rem;">Toutes les infos</h1>
-            <div class="calendar-container">
-                <label for="date-picker">📅 Filtrer par date :</label>
-                <input type="date" id="date-picker" onchange="renderNews()">
-                <button onclick="resetDate()" style="padding: 8px; cursor:pointer;">Effacer</button>
-            </div>
+            <h1 id="current-cat" style="margin:0;">Toutes les infos</h1>
+            <input type="date" id="date-picker" onchange="renderNews()">
         </div>
 
         <div id="main-content">
+            <div id="editor-zone">
+                <h3 style="margin-top:0">✍️ Publier une news</h3>
+                <div class="editor-grid">
+                    <input type="text" id="news-title" placeholder="Titre de l'article...">
+                    <select id="news-category">
+                        <option value="Sport">Sport</option>
+                        <option value="Tech">Tech</option>
+                        <option value="Bourse">Bourse</option>
+                        <option value="Jeux Vidéo">Jeux Vidéo</option>
+                        <option value="Politique">Politique</option>
+                    </select>
+                    <textarea id="news-text" placeholder="Écrivez ici..." rows="3"></textarea>
+                    <button class="publish-btn" onclick="postNews()">PUBLIER</button>
+                </div>
+            </div>
             <div id="news-container"></div>
         </div>
     </div>
 
-    <button id="admin-toggle" onclick="toggleAdmin()">⚙️ Gérer</button>
-
-    <div id="admin-panel">
-        <h3>Nouvel Article</h3>
-        <select id="news-category">
-            <option value="Sport">Sport</option>
-            <option value="Tech">Tech</option>
-            <option value="Bourse">Bourse</option>
-            <option value="Jeux Vidéo">Jeux Vidéo</option>
-            <option value="Politique">Politique</option>
-        </select>
-        <input type="text" id="news-title" placeholder="Titre...">
-        <textarea id="news-text" placeholder="Texte..." rows="4"></textarea>
-        <button onclick="postNews()" style="width:100%; background:#4cc9f0; border:none; padding:12px; cursor:pointer; font-weight:bold; border-radius:6px;">PUBLIER</button>
-    </div>
+    <button id="admin-lock" onclick="askPassword()">🔒 Accès Admin</button>
 
     <script>
         let allNews = JSON.parse(localStorage.getItem('myJournalNews')) || [];
         let currentCategory = 'Tout';
         let isAdmin = false;
 
-        function toggleAdmin() {
+        const emojiList = ["🔥", "❤️", "😂", "😮", "😢"];
+
+        function askPassword() {
             if (prompt("Mot de passe :") === "1234") {
-                isAdmin = !isAdmin;
-                document.getElementById('admin-panel').style.display = isAdmin ? 'block' : 'none';
+                isAdmin = true;
+                document.getElementById('editor-zone').style.display = 'block';
+                document.getElementById('admin-lock').innerText = "🔓 Admin Actif";
                 renderNews();
             }
         }
 
         function postNews() {
-            const cat = document.getElementById('news-category').value;
             const title = document.getElementById('news-title').value;
+            const cat = document.getElementById('news-category').value;
             const text = document.getElementById('news-text').value;
-            
-            // On enregistre la date au format YYYY-MM-DD pour le calendrier
-            const now = new Date();
-            const dateKey = now.toISOString().split('T')[0]; 
-            const dateDisplay = now.toLocaleString();
-
             if(title && text) {
-                const newArticle = { id: Date.now(), cat, title, text, dateKey, dateDisplay };
+                const newArticle = {
+                    id: Date.now(),
+                    cat, title, text,
+                    dateKey: new Date().toISOString().split('T')[0],
+                    dateDisplay: new Date().toLocaleString(),
+                    ratings: [],
+                    reactions: { "🔥": 0, "❤️": 0, "😂": 0, "😮": 0, "😢": 0 }
+                };
                 allNews.unshift(newArticle);
-                localStorage.setItem('myJournalNews', JSON.stringify(allNews));
-                renderNews();
-                document.getElementById('news-title').value = "";
-                document.getElementById('news-text').value = "";
+                save(); renderNews();
+                document.getElementById('news-title').value = ""; document.getElementById('news-text').value = "";
             }
         }
 
-        function deleteNews(id) {
-            allNews = allNews.filter(a => a.id !== id);
-            localStorage.setItem('myJournalNews', JSON.stringify(allNews));
-            renderNews();
-        }
-
-        function changeCategory(cat) {
-            currentCategory = cat;
-            document.getElementById('current-cat').innerText = cat === 'Tout' ? 'Toutes les infos' : cat;
-            
-            let items = document.getElementsByClassName('menu-item');
-            for (let item of items) {
-                item.classList.remove('active');
-                if(item.innerText.includes(cat)) item.classList.add('active');
+        function addReaction(articleId, emoji) {
+            const article = allNews.find(a => a.id === articleId);
+            if(article) {
+                article.reactions[emoji]++;
+                save(); renderNews();
             }
-            renderNews();
         }
 
-        function resetDate() {
-            document.getElementById('date-picker').value = "";
-            renderNews();
+        function vote(articleId, score) {
+            const article = allNews.find(a => a.id === articleId);
+            if(article) {
+                article.ratings.push(score);
+                save(); renderNews();
+            }
         }
+
+        function save() { localStorage.setItem('myJournalNews', JSON.stringify(allNews)); }
+        function deleteNews(id) { allNews = allNews.filter(a => a.id !== id); save(); renderNews(); }
+        function changeCategory(cat) { currentCategory = cat; document.getElementById('current-cat').innerText = cat; renderNews(); }
 
         function renderNews() {
             const container = document.getElementById('news-container');
-            const selectedDate = document.getElementById('date-picker').value; // Format YYYY-MM-DD
+            const selectedDate = document.getElementById('date-picker').value;
             container.innerHTML = "";
             
             allNews.forEach(article => {
-                const matchCat = (currentCategory === 'Tout' || article.cat === currentCategory);
-                const matchDate = (selectedDate === "" || article.dateKey === selectedDate);
+                if ((currentCategory === 'Tout' || article.cat === currentCategory) && 
+                    (selectedDate === "" || article.dateKey === selectedDate)) {
+                    
+                    const sum = article.ratings.reduce((a, b) => a + b, 0);
+                    const avg = article.ratings.length ? (sum / article.ratings.length).toFixed(1) : "0";
 
-                if (matchCat && matchDate) {
                     container.innerHTML += `
                         <div class="news-card">
                             <span class="badge">${article.cat}</span>
-                            <small> - ${article.dateDisplay}</small>
-                            <button class="delete-btn" style="display:${isAdmin ? 'block' : 'none'}" onclick="deleteNews(${article.id})">Supprimer</button>
+                            <small> • ${article.dateDisplay}</small>
+                            ${isAdmin ? `<button class="delete-btn" onclick="deleteNews(${article.id})">Supprimer</button>` : ''}
                             <h2>${article.title}</h2>
-                            <p>${article.text}</p>
+                            <p style="white-space: pre-wrap;">${article.text}</p>
+                            
+                            <div class="interaction-bar">
+                                <div style="display:flex; align-items:center; gap:15px;">
+                                    <div class="stars">
+                                        ${[1,2,3,4,5].map(n => `<button class="star-btn" onclick="vote(${article.id}, ${n})">★</button>`).join('')}
+                                    </div>
+                                    <span style="font-size:0.85rem; color:#666;">Note : ${avg}/5 (${article.ratings.length} avis)</span>
+                                </div>
+                                
+                                <div class="reactions">
+                                    ${emojiList.map(e => `
+                                        <button class="react-btn" onclick="addReaction(${article.id}, '${e}')">
+                                            ${e} <span>${article.reactions[e]}</span>
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
                         </div>
                     `;
                 }
             });
-
-            if (container.innerHTML === "") {
-                container.innerHTML = "<p style='text-align:center; color:#888;'>Aucun article trouvé pour cette sélection.</p>";
-            }
         }
-
         renderNews();
     </script>
 </body>
