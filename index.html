@@ -2,218 +2,31 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>2DCraft Ultimate Crossplay</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noam Le Goat</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; touch-action: none; font-family: 'Verdana', sans-serif; color: white; }
-        canvas { display: block; image-rendering: pixelated; width: 100vw; height: 100vh; }
-        
-        /* --- INTERFACE --- */
-        #menu { position: absolute; width: 100%; height: 100%; background: radial-gradient(#4facfe, #004e92); display: flex; align-items: center; justify-content: center; z-index: 9000; }
-        .box { background: rgba(0,0,0,0.85); padding: 30px; border-radius: 15px; text-align: center; border: 3px solid #ffab40; width: 300px; }
-        
-        #ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-        #stats { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 8px; pointer-events: auto; border-left: 4px solid #4ade80; }
-        #hp-bar { width: 140px; height: 10px; background: #333; margin-top: 5px; }
-        #hp-fill { width: 100%; height: 100%; background: #ff4444; transition: 0.2s; }
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff; /* Fond blanc */
+            font-family: 'Arial Black', sans-serif;
+        }
 
-        /* MULTIJOUEUR STATUS */
-        #multi-status { position: absolute; top: 10px; right: 10px; font-size: 10px; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px; color: #4ade80; }
-
-        /* INVENTAIRE STYLE MC */
-        #inv-panel { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; background: #c6c6c6; border: 4px solid #333; padding: 15px; color: #333; display: none; pointer-events: auto; z-index: 9999; }
-        .craft-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .item-btn { background: #8b8b8b; border: 2px solid #333; padding: 8px; font-size: 10px; cursor: pointer; color: white; text-align: center; font-weight: bold; }
-
-        /* TOUCHES MOBILE */
-        #mobile-ctrl { position: absolute; bottom: 20px; left: 20px; width: 120px; height: 120px; background: rgba(255,255,255,0.1); border-radius: 50%; display: none; pointer-events: auto; }
-        #jump-btn { position: absolute; bottom: 20px; right: 20px; width: 80px; height: 80px; background: rgba(255,255,255,0.1); border: 2px solid #fff; border-radius: 50%; display: none; align-items: center; justify-content: center; pointer-events: auto; font-weight: bold; }
-        @media (pointer: coarse) { #mobile-ctrl, #jump-btn { display: flex; } }
-
-        #hotbar { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; pointer-events: auto; }
-        .slot { width: 45px; height: 45px; background: rgba(0,0,0,0.8); border: 2px solid #666; display: flex; align-items: center; justify-content: center; font-size: 8px; text-align: center; }
-        .slot.active { border-color: #ffab40; background: rgba(255,171,64,0.3); }
-
-        #break-ui { position: absolute; width: 40px; height: 6px; background: rgba(0,0,0,0.5); border: 1px solid #fff; display: none; }
+        h1 {
+            font-size: 10vw; /* Taille adaptative selon l'écran */
+            color: #000000; /* Noir pur */
+            text-transform: uppercase;
+            margin: 0;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
-    <div id="menu">
-        <div class="box">
-            <h1 style="color:#ffab40; margin:0;">2DCraft</h1>
-            <p style="font-size:12px;">CROSSPLAY ENABLED</p>
-            <input type="text" id="p-input" placeholder="Ton Pseudo..." style="padding:10px; width:80%; margin:15px 0; border-radius:5px; border:none;">
-            <button onclick="init()" style="padding:12px 25px; background:#4ade80; border:none; color:white; font-weight:bold; cursor:pointer; width:100%; border-radius:8px;">REJOINDRE LE SERVEUR</button>
-        </div>
-    </div>
+    <h1>NOAM LE GOAT</h1>
 
-    <div id="inv-panel">
-        <h3 style="margin:0">CRAFT & ARMURES</h3>
-        <div id="inv-details" style="font-size:11px; margin:10px 0; background:#999; padding:5px;"></div>
-        <div class="craft-grid" id="craft-list"></div>
-        <button onclick="toggleInv()" style="margin-top:15px; width:100%; padding:10px;">FERMER</button>
-    </div>
-
-    <div id="ui">
-        <div id="multi-status">● SERVEUR: CONNECTÉ (3 JOUEURS)</div>
-        <div id="stats">
-            <b id="display-name">Joueur</b>
-            <div id="hp-bar"><div id="hp-fill"></div></div>
-            <div id="armor-txt" style="font-size:9px; color:#fff; margin-top:4px;">Défense: 0</div>
-        </div>
-        <div id="break-ui"><div id="break-fill" style="height:100%; background:#ffff00; width:0%;"></div></div>
-        <div id="hotbar">
-            <div class="slot active" onclick="sel(1)" id="s1">MAIN</div>
-            <div class="slot" onclick="sel(2)" id="s2">VIDE</div>
-            <div class="slot" onclick="sel(3)" id="s3">TORCHE</div>
-            <div class="slot" onclick="sel(4)" id="s4">ARC</div>
-        </div>
-        <div id="mobile-ctrl"></div>
-        <div id="jump-btn">SAUT</div>
-        <button id="inv-open" onclick="toggleInv()" style="position:absolute; bottom:80px; right:20px; pointer-events:auto; padding:10px; background:#555; color:white; border:2px solid #000;">INV</button>
-    </div>
-
-    <canvas id="cvs"></canvas>
-
-<script>
-const cvs = document.getElementById('cvs'), ctx = cvs.getContext('2d');
-let world = [], clouds = [], items = [], otherPlayers = [], lastT = 0, activeS = 1, keys = {}, mining = null;
-let gameTime = 0, joyX = 0;
-const TILE = 32, ROWS = 64, COLS = 128;
-
-let p = { x: 2000, y: 800, w: 22, h: 40, vx: 0, vy: 0, hp: 100, def: 0, grounded: false, name: "" };
-let inv = { bois: 0, pierre: 0, fer: 0, palla: 0, torches: 5 };
-let armor = { type: null };
-let tools = { 1:{t:'Main', lvl:0}, 2:null };
-
-const COLORS = { 1:"#2ecc71", 3:"#7f8c8d", 5:"#bdc3c7", 9:"#e67e22", 10:"#5d4037", 11:"#27ae60", 12:"#2c3e50" };
-
-function init() {
-    p.name = document.getElementById('p-input').value || "Guest";
-    document.getElementById('display-name').innerText = p.name;
-    document.getElementById('menu').style.display = 'none';
-    cvs.width = window.innerWidth; cvs.height = window.innerHeight;
-    
-    for(let y=0; y<ROWS; y++) {
-        world[y] = [];
-        for(let x=0; x<COLS; x++) {
-            let id = 0;
-            if(y === 35) id = 1;
-            else if(y > 35 && y < 63) { id = 3; if(Math.random()<0.05) id=5; if(y>55 && Math.random()<0.02) id=9; }
-            else if(y === 63) id = 12;
-            if(y === 34 && x % 12 === 0) id = 10;
-            world[y][x] = id;
-        }
-    }
-    // Crossplay : Simulation d'autres joueurs
-    otherPlayers.push({x: 2300, y: 800, name: "ProMiner_iOS", col: "#f1c40f"});
-    otherPlayers.push({x: 1800, y: 800, name: "DroidPlayer", col: "#3498db"});
-
-    for(let i=0; i<8; i++) clouds.push({x: Math.random()*COLS*TILE, y: 50+Math.random()*150, s: 0.2});
-    updateCrafts();
-    requestAnimationFrame(loop);
-}
-
-function loop(t) {
-    let dt = (t - lastT) / 1000; lastT = t; if(dt > 0.1) dt = 0.016;
-    gameTime += dt;
-
-    // Commandes Cross-Platform
-    let mv = joyX || (keys['d']?1:0) - (keys['q']?1:0);
-    p.vx = mv * 280; p.vy += 1500 * dt;
-    p.x += p.vx * dt; p.y += p.vy * dt;
-
-    let gx = Math.floor(p.x/TILE), gy = Math.floor((p.y+p.h)/TILE);
-    if(world[gy]?.[gx] > 0) { p.y = gy*TILE-p.h; p.vy = 0; p.grounded = true; } else p.grounded = false;
-
-    // Ramassage Items
-    items.forEach((it, i) => { if(Math.hypot(p.x-it.x, p.y-it.y) < 30) { if(it.id===10)inv.bois++; if(it.id===3)inv.pierre++; if(it.id===5)inv.fer++; if(it.id===9)inv.palla++; items.splice(i,1); updateCrafts(); } });
-
-    // Minage 1.5s
-    if(mining) {
-        mining.t += dt;
-        let bar = document.getElementById('break-ui');
-        bar.style.display = 'block';
-        bar.style.left = (mining.cx - 20) + "px"; bar.style.top = (mining.cy - 30) + "px";
-        document.getElementById('break-fill').style.width = (mining.t / 1.5) * 100 + "%";
-        if(mining.t >= 1.5) { 
-            items.push({x: mining.gx*TILE+10, y: mining.gy*TILE+10, id: world[mining.gy][mining.gx]});
-            world[mining.gy][mining.gx] = 0; mining = null; bar.style.display = 'none'; 
-        }
-    }
-
-    draw(); requestAnimationFrame(loop);
-}
-
-function draw() {
-    let cx = p.x - cvs.width/2, cy = p.y - cvs.height/2;
-    let sky = (Math.sin(gameTime * 0.1) + 1) / 2;
-    ctx.fillStyle = `rgb(${79*sky}, ${172*sky+20}, ${254*sky+50})`;
-    ctx.fillRect(0,0,cvs.width,cvs.height);
-
-    for(let y=0; y<ROWS; y++) for(let x=Math.floor(cx/TILE); x<Math.floor((cx+cvs.width)/TILE)+1; x++) {
-        let id = world[y]?.[x]; if(id > 0) { ctx.fillStyle = COLORS[id]; ctx.fillRect(x*TILE-cx, y*TILE-cy, TILE, TILE); }
-    }
-
-    items.forEach(it => { ctx.fillStyle = COLORS[it.id]; ctx.fillRect(it.x-cx, it.y-cy, 12, 12); });
-    
-    // Crossplay Players
-    otherPlayers.forEach(op => {
-        ctx.fillStyle = op.col; ctx.fillRect(op.x-cx, op.y-cy, 22, 40);
-        ctx.fillStyle="white"; ctx.font="8px Arial"; ctx.fillText(op.name, op.x-cx, op.y-cy-5);
-    });
-
-    // Joueur Terraria
-    ctx.fillStyle = "#ffdbac"; ctx.fillRect(p.x-cx+3, p.y-cy, 16, 14);
-    ctx.fillStyle = armor.type ? COLORS[armor.type] : "#e74c3c"; ctx.fillRect(p.x-cx, p.y-cy+14, 22, 16);
-    ctx.fillStyle = "#34495e"; ctx.fillRect(p.x-cx+2, p.y-cy+30, 18, 10);
-    ctx.fillStyle="white"; ctx.font="bold 10px Arial"; ctx.fillText(p.name, p.x-cx, p.y-cy-5);
-}
-
-function toggleInv() { let el=document.getElementById('inv-panel'); el.style.display=el.style.display==='block'?'none':'block'; }
-
-function updateCrafts() {
-    document.getElementById('inv-details').innerText = `BOIS:${inv.bois} PIERRE:${inv.pierre} FER:${inv.fer} PALLA:${inv.palla}`;
-    let grid = document.getElementById('craft-list'); grid.innerHTML = "";
-    const list = [
-        {n:"Pioche Bois", c:{bois:3}, f:()=>tools[2]={t:'P. Bois', lvl:1}},
-        {n:"Pioche Fer", c:{fer:3}, f:()=>tools[2]={t:'P. Fer', lvl:2}},
-        {n:"Plastron Fer", c:{fer:5}, f:()=>{armor.type=5; p.def=15;}},
-        {n:"Plastron Palla", c:{palla:5}, f:()=>{armor.type=9; p.def=40;}}
-    ];
-    list.forEach(r => {
-        let b=document.createElement('div'); b.className="item-btn"; b.innerText=r.n;
-        b.onclick=()=>{ let ok=true; for(let m in r.c) if(inv[m]<r.c[m]) ok=false; if(ok){ for(let m in r.c) inv[m]-=r.c[m]; r.f(); updateCrafts(); }};
-        grid.appendChild(b);
-    });
-    document.getElementById('s2').innerText = tools[2]?tools[2].t:"VIDE";
-    document.getElementById('armor-txt').innerText = "Défense: " + p.def;
-}
-
-// TOUCHES & MOUSE
-cvs.onmousedown = e => {
-    let cx = p.x-cvs.width/2, cy = p.y-cvs.height/2;
-    let gx = Math.floor((e.clientX+cx)/TILE), gy = Math.floor((e.clientY+cy)/TILE);
-    let id = world[gy][gx];
-    if(id > 0 && id !== 12) {
-        let lvl = tools[activeS]?.lvl || 0;
-        if(id>=10 || (id===3 && lvl>=1) || (id>=5 && lvl>=2)) mining = {gx, gy, t:0, cx: e.clientX, cy: e.clientY};
-    }
-};
-cvs.onmouseup = () => { mining=null; document.getElementById('break-ui').style.display='none'; };
-
-window.onkeydown = e => { keys[e.key.toLowerCase()] = true; if((e.key===' '||e.key==='z') && p.grounded) p.vy=-500; };
-window.onkeyup = e => keys[e.key.toLowerCase()] = false;
-
-// MOBILE JOYSTICK SIMULATION
-const mob = document.getElementById('mobile-ctrl');
-mob.addEventListener('touchstart', e => { let r=mob.getBoundingClientRect(); joyX = (e.touches[0].clientX-(r.left+60))/60; });
-mob.addEventListener('touchmove', e => { let r=mob.getBoundingClientRect(); joyX = (e.touches[0].clientX-(r.left+60))/60; });
-mob.addEventListener('touchend', () => joyX = 0);
-document.getElementById('jump-btn').addEventListener('touchstart', () => { if(p.grounded) p.vy=-500; });
-
-function sel(n) { activeS=n; document.querySelectorAll('.slot').forEach((s,i)=>s.classList.toggle('active', i+1===n)); }
-</script>
 </body>
 </html>
