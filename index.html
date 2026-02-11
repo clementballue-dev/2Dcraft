@@ -3,30 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Noam Le Goat</title>
+    <title>Noam Le Goat - Arrivée imminente</title>
     <style>
         body {
             margin: 0;
             height: 100vh;
             display: flex;
+            flex-direction: column; /* Aligne les éléments verticalement */
             justify-content: center;
             align-items: center;
-            background-color: #ffffff; /* Fond blanc */
+            background-color: #ffffff;
             font-family: 'Arial Black', sans-serif;
+            overflow: hidden; /* Évite le scroll inutile */
         }
 
         h1 {
-            font-size: 10vw; /* Taille adaptative selon l'écran */
-            color: #000000; /* Noir pur */
+            font-size: 12vw; /* Très gros sur PC, adapté sur mobile */
+            color: #000000;
             text-transform: uppercase;
             margin: 0;
+            line-height: 0.9;
             text-align: center;
+        }
+
+        p {
+            font-size: 4vw;
+            color: #333333;
+            text-transform: lowercase;
+            margin-top: 20px;
+            letter-spacing: 2px;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        /* Petite animation pour le texte du bas */
+        @keyframes pulse {
+            0% { opacity: 0.5; transform: scale(0.98); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0.5; transform: scale(0.98); }
+        }
+
+        /* Ajustement pour les petits écrans mobiles */
+        @media (max-width: 600px) {
+            h1 { font-size: 18vw; }
+            p { font-size: 6vw; }
         }
     </style>
 </head>
 <body>
 
     <h1>NOAM LE GOAT</h1>
+    <p>le jeu arrive</p>
 
 </body>
 </html>
