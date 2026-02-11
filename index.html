@@ -2,263 +2,218 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>2DCraft - Ultimate Edition</title>
+    <title>2DCraft Ultimate Crossplay</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         body { margin: 0; background: #000; overflow: hidden; touch-action: none; font-family: 'Verdana', sans-serif; color: white; }
-        canvas { display: none; image-rendering: pixelated; width: 100vw; height: 100vh; }
+        canvas { display: block; image-rendering: pixelated; width: 100vw; height: 100vh; }
         
-        /* --- MENU --- */
-        #menu { position: absolute; width: 100%; height: 100%; background: linear-gradient(#4facfe, #00f2fe); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .box { background: rgba(0,0,0,0.8); padding: 40px; border-radius: 20px; border: 3px solid #fff; text-align: center; width: 320px; }
+        /* --- INTERFACE --- */
+        #menu { position: absolute; width: 100%; height: 100%; background: radial-gradient(#4facfe, #004e92); display: flex; align-items: center; justify-content: center; z-index: 9000; }
+        .box { background: rgba(0,0,0,0.85); padding: 30px; border-radius: 15px; text-align: center; border: 3px solid #ffab40; width: 300px; }
         
-        /* --- UI JEU --- */
-        #ui { display: none; pointer-events: none; position: absolute; width: 100%; height: 100%; }
-        #stats { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 12px; border-radius: 10px; border-left: 5px solid #ffab40; }
-        #hp-bar { width: 180px; height: 12px; background: #333; border-radius: 6px; overflow: hidden; }
-        #hp-fill { width: 100%; height: 100%; background: #ff4444; transition: 0.3s; }
-        
-        #craft { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.85); padding: 15px; border-radius: 10px; pointer-events: auto; max-height: 85vh; overflow-y: auto; width: 220px; border: 1px solid #ffab40; }
-        .recipe { background: #333; padding: 6px; margin: 4px 0; border-radius: 4px; cursor: pointer; font-size: 11px; border-bottom: 2px solid #111; }
-        .recipe:hover { background: #444; border-color: #fff; }
+        #ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        #stats { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 8px; pointer-events: auto; border-left: 4px solid #4ade80; }
+        #hp-bar { width: 140px; height: 10px; background: #333; margin-top: 5px; }
+        #hp-fill { width: 100%; height: 100%; background: #ff4444; transition: 0.2s; }
 
-        #boss-ui { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 300px; display: none; text-align: center; }
-        #boss-bar { width: 100%; height: 15px; background: #222; border: 2px solid red; }
-        #boss-fill { width: 100%; height: 100%; background: red; }
+        /* MULTIJOUEUR STATUS */
+        #multi-status { position: absolute; top: 10px; right: 10px; font-size: 10px; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px; color: #4ade80; }
 
-        #hotbar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; pointer-events: auto; }
-        .slot { width: 55px; height: 60px; background: rgba(0,0,0,0.8); border: 3px solid #666; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; text-align: center; }
+        /* INVENTAIRE STYLE MC */
+        #inv-panel { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; background: #c6c6c6; border: 4px solid #333; padding: 15px; color: #333; display: none; pointer-events: auto; z-index: 9999; }
+        .craft-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .item-btn { background: #8b8b8b; border: 2px solid #333; padding: 8px; font-size: 10px; cursor: pointer; color: white; text-align: center; font-weight: bold; }
+
+        /* TOUCHES MOBILE */
+        #mobile-ctrl { position: absolute; bottom: 20px; left: 20px; width: 120px; height: 120px; background: rgba(255,255,255,0.1); border-radius: 50%; display: none; pointer-events: auto; }
+        #jump-btn { position: absolute; bottom: 20px; right: 20px; width: 80px; height: 80px; background: rgba(255,255,255,0.1); border: 2px solid #fff; border-radius: 50%; display: none; align-items: center; justify-content: center; pointer-events: auto; font-weight: bold; }
+        @media (pointer: coarse) { #mobile-ctrl, #jump-btn { display: flex; } }
+
+        #hotbar { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; pointer-events: auto; }
+        .slot { width: 45px; height: 45px; background: rgba(0,0,0,0.8); border: 2px solid #666; display: flex; align-items: center; justify-content: center; font-size: 8px; text-align: center; }
         .slot.active { border-color: #ffab40; background: rgba(255,171,64,0.3); }
 
-        /* CONTROLES MOBILE */
-        #ctrl-mobile { position: absolute; bottom: 40px; width: 100%; display: none; pointer-events: none; }
-        #joystick { position: absolute; left: 40px; bottom: 10px; width: 110px; height: 110px; background: rgba(255,255,255,0.1); border-radius: 50%; pointer-events: auto; }
-        #knob { position: absolute; top: 30px; left: 30px; width: 50px; height: 50px; background: #fff; border-radius: 50%; }
-        #jump-btn { position: absolute; right: 40px; bottom: 10px; width: 90px; height: 90px; background: rgba(255,255,255,0.1); border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; pointer-events: auto; }
-        @media (pointer: coarse) { #ctrl-mobile { display: block; } }
+        #break-ui { position: absolute; width: 40px; height: 6px; background: rgba(0,0,0,0.5); border: 1px solid #fff; display: none; }
     </style>
 </head>
 <body>
 
     <div id="menu">
         <div class="box">
-            <h1 style="color:#ffab40; margin:0; font-size:45px; text-shadow: 3px 3px #000;">2DCraft</h1>
-            <p style="margin-bottom:20px;">Survie • Boss • Backrooms • Multi</p>
-            <input type="text" id="p-input" placeholder="Ton Pseudo..." maxlength="12" style="padding:12px; width:85%; border-radius:8px; border:none; font-size:16px;">
-            <button onclick="init()" style="margin-top:20px; padding:15px; background:#4ade80; border:none; border-radius:10px; font-size:18px; font-weight:bold; cursor:pointer; width:100%; color:white;">ENTRER DANS LE MONDE</button>
+            <h1 style="color:#ffab40; margin:0;">2DCraft</h1>
+            <p style="font-size:12px;">CROSSPLAY ENABLED</p>
+            <input type="text" id="p-input" placeholder="Ton Pseudo..." style="padding:10px; width:80%; margin:15px 0; border-radius:5px; border:none;">
+            <button onclick="init()" style="padding:12px 25px; background:#4ade80; border:none; color:white; font-weight:bold; cursor:pointer; width:100%; border-radius:8px;">REJOINDRE LE SERVEUR</button>
         </div>
     </div>
 
+    <div id="inv-panel">
+        <h3 style="margin:0">CRAFT & ARMURES</h3>
+        <div id="inv-details" style="font-size:11px; margin:10px 0; background:#999; padding:5px;"></div>
+        <div class="craft-grid" id="craft-list"></div>
+        <button onclick="toggleInv()" style="margin-top:15px; width:100%; padding:10px;">FERMER</button>
+    </div>
+
     <div id="ui">
-        <div id="boss-ui">
-            <b style="color:red; text-shadow: 2px 2px #000;">LE NEIGHBOR</b>
-            <div id="boss-bar"><div id="boss-fill"></div></div>
-        </div>
+        <div id="multi-status">● SERVEUR: CONNECTÉ (3 JOUEURS)</div>
         <div id="stats">
-            <b id="p-name" style="color:#ffab40; font-size:16px;">Héros</b>
+            <b id="display-name">Joueur</b>
             <div id="hp-bar"><div id="hp-fill"></div></div>
-            <div id="inv-txt" style="font-size:11px; margin-top:8px; color:#ddd;"></div>
-            <div id="def-txt" style="font-size:10px; color:#4ade80;">Défense: 0</div>
+            <div id="armor-txt" style="font-size:9px; color:#fff; margin-top:4px;">Défense: 0</div>
         </div>
-        <div id="craft">
-            <b style="color:#ffab40; font-size:13px;">FORGE 2DCRAFT</b>
-            <div id="recipe-list"></div>
-        </div>
+        <div id="break-ui"><div id="break-fill" style="height:100%; background:#ffff00; width:0%;"></div></div>
         <div id="hotbar">
-            <div class="slot active" id="s1" onclick="sel(1)">MAIN</div>
-            <div class="slot" id="s2" onclick="sel(2)">VIDE</div>
-            <div class="slot" id="s3" onclick="sel(3)">VIDE</div>
-            <div class="slot" id="s4" onclick="sel(4)">ARC</div>
+            <div class="slot active" onclick="sel(1)" id="s1">MAIN</div>
+            <div class="slot" onclick="sel(2)" id="s2">VIDE</div>
+            <div class="slot" onclick="sel(3)" id="s3">TORCHE</div>
+            <div class="slot" onclick="sel(4)" id="s4">ARC</div>
         </div>
-        <div id="ctrl-mobile">
-            <div id="joystick"><div id="knob"></div></div>
-            <div id="jump-btn">SAUT</div>
-        </div>
+        <div id="mobile-ctrl"></div>
+        <div id="jump-btn">SAUT</div>
+        <button id="inv-open" onclick="toggleInv()" style="position:absolute; bottom:80px; right:20px; pointer-events:auto; padding:10px; background:#555; color:white; border:2px solid #000;">INV</button>
     </div>
 
     <canvas id="cvs"></canvas>
 
 <script>
 const cvs = document.getElementById('cvs'), ctx = cvs.getContext('2d');
-let world = [], torches = [], lastT = 0, activeS = 1, keys = {}, joyX = 0, otherPlayers = [];
-let boss = null, inBackrooms = false, jumpCount = 0;
-const TILE = 32, ROWS = 65, COLS = 130;
+let world = [], clouds = [], items = [], otherPlayers = [], lastT = 0, activeS = 1, keys = {}, mining = null;
+let gameTime = 0, joyX = 0;
+const TILE = 32, ROWS = 64, COLS = 128;
 
-let p = { x: 2000, y: 800, w: 24, h: 42, vx: 0, vy: 0, hp: 100, def: 0, grounded: false, name: "" };
-let inv = { bois: 0, pierre: 0, fer: 0, or: 0, palladium: 0, batons: 0, torches: 0, fleches: 10 };
-let armor = { Casque:null, Plastron:null, Jambieres:null, Bottes:null };
-let tools = { 1:{t:'Main', m:'chair', p:1} };
+let p = { x: 2000, y: 800, w: 22, h: 40, vx: 0, vy: 0, hp: 100, def: 0, grounded: false, name: "" };
+let inv = { bois: 0, pierre: 0, fer: 0, palla: 0, torches: 5 };
+let armor = { type: null };
+let tools = { 1:{t:'Main', lvl:0}, 2:null };
 
-const COLORS = { bois:"#795548", pierre:"#90a4ae", fer:"#cfd8dc", or:"#ffd700", palladium:"#ff4d00", base:"#00d4ff" };
+const COLORS = { 1:"#2ecc71", 3:"#7f8c8d", 5:"#bdc3c7", 9:"#e67e22", 10:"#5d4037", 11:"#27ae60", 12:"#2c3e50" };
 
 function init() {
-    p.name = document.getElementById('p-input').value || "Terrarian";
+    p.name = document.getElementById('p-input').value || "Guest";
+    document.getElementById('display-name').innerText = p.name;
     document.getElementById('menu').style.display = 'none';
-    document.getElementById('ui').style.display = 'block';
-    cvs.style.display = 'block';
-    document.getElementById('p-name').innerText = "👤 " + p.name;
+    cvs.width = window.innerWidth; cvs.height = window.innerHeight;
     
-    // Génération du Monde
     for(let y=0; y<ROWS; y++) {
         world[y] = [];
         for(let x=0; x<COLS; x++) {
             let id = 0;
-            if(y === 35) id = 1; // Herbe
-            else if(y > 35 && y < 40) id = 2; // Terre
-            else if(y >= 40) {
-                id = 3; let r = Math.random();
-                if(r < 0.06) id = 5; // Fer
-                if(r < 0.02) id = 6; // Or
-                if(y > 58 && r < 0.15) id = 9; // Palla
-            }
-            if(y < 35 && y > 30 && x % 12 === 0) id = 10; // Arbres
+            if(y === 35) id = 1;
+            else if(y > 35 && y < 63) { id = 3; if(Math.random()<0.05) id=5; if(y>55 && Math.random()<0.02) id=9; }
+            else if(y === 63) id = 12;
+            if(y === 34 && x % 12 === 0) id = 10;
             world[y][x] = id;
         }
     }
-    // Simulation Crossplay
-    otherPlayers.push({x: 2200, y: 800, name: "Joueur_Mobile", mat:'fer'});
+    // Crossplay : Simulation d'autres joueurs
+    otherPlayers.push({x: 2300, y: 800, name: "ProMiner_iOS", col: "#f1c40f"});
+    otherPlayers.push({x: 1800, y: 800, name: "DroidPlayer", col: "#3498db"});
 
-    buildCraft();
+    for(let i=0; i<8; i++) clouds.push({x: Math.random()*COLS*TILE, y: 50+Math.random()*150, s: 0.2});
+    updateCrafts();
     requestAnimationFrame(loop);
 }
 
-function buildCraft() {
-    const list = document.getElementById('recipe-list');
-    const mats = ['bois', 'pierre', 'fer', 'palladium'];
-    const pcs = ['Casque', 'Plastron', 'Bottes'];
-    
-    list.innerHTML = `<div class="recipe" onclick="craftItem('torch')">Torches x4 (1 Bois)</div>`;
-    mats.forEach(m => {
-        let d = document.createElement('div'); d.className = 'recipe';
-        d.innerText = `Pioche ${m.toUpperCase()}`;
-        d.onclick = () => { if(inv[m]>=3){ inv[m]-=3; tools[2]={t:'Pioche', m:m}; updateUI(); }};
-        list.appendChild(d);
-        pcs.forEach(pc => {
-            let a = document.createElement('div'); a.className = 'recipe';
-            a.innerText = `${pc} ${m.toUpperCase()}`;
-            a.onclick = () => {
-                let cost = pc === 'Plastron' ? 7 : 5;
-                if(inv[m] >= cost) { inv[m]-=cost; armor[pc]={mat:m, def:cost*2}; calcDef(); updateUI(); }
-            };
-            list.appendChild(a);
-        });
-    });
-}
-
-function craftItem(t) { if(t==='torch' && inv.bois>=1){ inv.bois--; inv.torches+=4; updateUI(); }}
-function calcDef() { p.def = Object.values(armor).reduce((s, a) => s + (a?a.def:0), 0); }
-
 function loop(t) {
-    let dt = Math.min((t - lastT) / 1000, 0.1); lastT = t;
-    let mv = joyX || (keys['d']?1:keys['q']?-1:0);
-    p.vx = mv * 320; p.vy += 1600 * dt;
+    let dt = (t - lastT) / 1000; lastT = t; if(dt > 0.1) dt = 0.016;
+    gameTime += dt;
+
+    // Commandes Cross-Platform
+    let mv = joyX || (keys['d']?1:0) - (keys['q']?1:0);
+    p.vx = mv * 280; p.vy += 1500 * dt;
     p.x += p.vx * dt; p.y += p.vy * dt;
 
     let gx = Math.floor(p.x/TILE), gy = Math.floor((p.y+p.h)/TILE);
-    if(world[gy]?.[gx] > 0) { p.y = gy*TILE - p.h; p.vy = 0; p.grounded = true; } else p.grounded = false;
+    if(world[gy]?.[gx] > 0) { p.y = gy*TILE-p.h; p.vy = 0; p.grounded = true; } else p.grounded = false;
 
-    // Backrooms
-    if(!inBackrooms && gy >= ROWS-2 && jumpCount >= 3) {
-        inBackrooms = true;
-        for(let y=0; y<ROWS; y++) for(let x=0; x<COLS; x++) world[y][x] = Math.random() > 0.9 ? 11 : 0;
-    }
+    // Ramassage Items
+    items.forEach((it, i) => { if(Math.hypot(p.x-it.x, p.y-it.y) < 30) { if(it.id===10)inv.bois++; if(it.id===3)inv.pierre++; if(it.id===5)inv.fer++; if(it.id===9)inv.palla++; items.splice(i,1); updateCrafts(); } });
 
-    // Boss Neighbor IA
-    if(boss) {
-        boss.vx = (p.x > boss.x ? 1 : -1) * 200; boss.vy += 1500 * dt;
-        boss.x += boss.vx * dt; boss.y += boss.vy * dt;
-        let bgx = Math.floor(boss.x/TILE), bgy = Math.floor((boss.y+boss.h)/TILE);
-        if(world[bgy]?.[bgx] > 0) { boss.y = bgy*TILE - boss.h; boss.vy = 0; }
-        if(Math.hypot(p.x-boss.x, p.y-boss.y) < 50) {
-            p.hp -= Math.max(5, 40 - (p.def * 0.7)) * dt;
-            if(p.hp <= 0) location.reload();
+    // Minage 1.5s
+    if(mining) {
+        mining.t += dt;
+        let bar = document.getElementById('break-ui');
+        bar.style.display = 'block';
+        bar.style.left = (mining.cx - 20) + "px"; bar.style.top = (mining.cy - 30) + "px";
+        document.getElementById('break-fill').style.width = (mining.t / 1.5) * 100 + "%";
+        if(mining.t >= 1.5) { 
+            items.push({x: mining.gx*TILE+10, y: mining.gy*TILE+10, id: world[mining.gy][mining.gx]});
+            world[mining.gy][mining.gx] = 0; mining = null; bar.style.display = 'none'; 
         }
     }
 
-    draw(); updateUI(); requestAnimationFrame(loop);
+    draw(); requestAnimationFrame(loop);
 }
 
 function draw() {
     let cx = p.x - cvs.width/2, cy = p.y - cvs.height/2;
-    ctx.fillStyle = inBackrooms ? "#ceca8d" : "#4facfe"; ctx.fillRect(0,0,cvs.width,cvs.height);
+    let sky = (Math.sin(gameTime * 0.1) + 1) / 2;
+    ctx.fillStyle = `rgb(${79*sky}, ${172*sky+20}, ${254*sky+50})`;
+    ctx.fillRect(0,0,cvs.width,cvs.height);
 
-    // Monde
-    for(let y=0; y<ROWS; y++) {
-        for(let x=Math.floor(cx/TILE); x<Math.floor((cx+cvs.width)/TILE)+1; x++) {
-            let id = world[y]?.[x];
-            if(id > 0) {
-                ctx.fillStyle = {1:"#2ecc71", 2:"#795548", 3:"#7f8c8d", 5:"#bdc3c7", 6:"#ffd700", 9:"#e67e22", 10:"#5d4037", 11:"#9e9a5e"}[id];
-                ctx.fillRect(x*TILE-cx, y*TILE-cy, TILE, TILE);
-            }
-        }
+    for(let y=0; y<ROWS; y++) for(let x=Math.floor(cx/TILE); x<Math.floor((cx+cvs.width)/TILE)+1; x++) {
+        let id = world[y]?.[x]; if(id > 0) { ctx.fillStyle = COLORS[id]; ctx.fillRect(x*TILE-cx, y*TILE-cy, TILE, TILE); }
     }
 
-    // Torches & Boss
-    torches.forEach(tr => { ctx.fillStyle = "#ffab40"; ctx.fillRect(tr.x*TILE-cx+12, tr.y*TILE-cy+10, 8, 16); });
-    if(boss) { ctx.fillStyle = "#1a0000"; ctx.fillRect(boss.x-cx, boss.y-cy, 60, 80); }
+    items.forEach(it => { ctx.fillStyle = COLORS[it.id]; ctx.fillRect(it.x-cx, it.y-cy, 12, 12); });
+    
+    // Crossplay Players
+    otherPlayers.forEach(op => {
+        ctx.fillStyle = op.col; ctx.fillRect(op.x-cx, op.y-cy, 22, 40);
+        ctx.fillStyle="white"; ctx.font="8px Arial"; ctx.fillText(op.name, op.x-cx, op.y-cy-5);
+    });
 
     // Joueur Terraria
-    let px = p.x-cx, py = p.y-cy;
-    let setMat = armor.Plastron?.mat;
-    if(setMat && Object.values(armor).every(a => a?.mat === setMat)) { ctx.shadowBlur = 15; ctx.shadowColor = COLORS[setMat]; }
-    
-    ctx.fillStyle = "#ffdbac"; ctx.fillRect(px+3, py, 16, 14); // Tête
-    ctx.fillStyle = COLORS[armor.Plastron?.mat || 'base']; ctx.fillRect(px, py+12, 22, 18); // Corps
-    ctx.fillStyle = "#34495e"; ctx.fillRect(px+2, py+30, 18, 12); // Jambes
-    if(armor.Casque) { ctx.fillStyle = COLORS[armor.Casque.mat]; ctx.fillRect(px+1, py-2, 20, 8); }
-    
-    ctx.shadowBlur = 0; ctx.fillStyle = "white"; ctx.font = "bold 10px Arial"; ctx.textAlign = "center";
-    ctx.fillText(p.name, px+p.w/2, py-10);
+    ctx.fillStyle = "#ffdbac"; ctx.fillRect(p.x-cx+3, p.y-cy, 16, 14);
+    ctx.fillStyle = armor.type ? COLORS[armor.type] : "#e74c3c"; ctx.fillRect(p.x-cx, p.y-cy+14, 22, 16);
+    ctx.fillStyle = "#34495e"; ctx.fillRect(p.x-cx+2, p.y-cy+30, 18, 10);
+    ctx.fillStyle="white"; ctx.font="bold 10px Arial"; ctx.fillText(p.name, p.x-cx, p.y-cy-5);
+}
 
-    // Lumière RÉELLE
-    ctx.globalCompositeOperation = 'destination-out';
-    let g = ctx.createRadialGradient(px+12, py+21, 0, px+12, py+21, 150);
-    g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(1, "rgba(255,255,255,0)");
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(px+12, py+21, 150, 0, Math.PI*2); ctx.fill();
-    
-    torches.forEach(tr => {
-        let tg = ctx.createRadialGradient(tr.x*TILE-cx+16, tr.y*TILE-cy+16, 0, tr.x*TILE-cx+16, tr.y*TILE-cy+16, 200);
-        tg.addColorStop(0, "white"); tg.addColorStop(1, "transparent");
-        ctx.fillStyle = tg; ctx.beginPath(); ctx.arc(tr.x*TILE-cx+16, tr.y*TILE-cy+16, 200, 0, Math.PI*2); ctx.fill();
+function toggleInv() { let el=document.getElementById('inv-panel'); el.style.display=el.style.display==='block'?'none':'block'; }
+
+function updateCrafts() {
+    document.getElementById('inv-details').innerText = `BOIS:${inv.bois} PIERRE:${inv.pierre} FER:${inv.fer} PALLA:${inv.palla}`;
+    let grid = document.getElementById('craft-list'); grid.innerHTML = "";
+    const list = [
+        {n:"Pioche Bois", c:{bois:3}, f:()=>tools[2]={t:'P. Bois', lvl:1}},
+        {n:"Pioche Fer", c:{fer:3}, f:()=>tools[2]={t:'P. Fer', lvl:2}},
+        {n:"Plastron Fer", c:{fer:5}, f:()=>{armor.type=5; p.def=15;}},
+        {n:"Plastron Palla", c:{palla:5}, f:()=>{armor.type=9; p.def=40;}}
+    ];
+    list.forEach(r => {
+        let b=document.createElement('div'); b.className="item-btn"; b.innerText=r.n;
+        b.onclick=()=>{ let ok=true; for(let m in r.c) if(inv[m]<r.c[m]) ok=false; if(ok){ for(let m in r.c) inv[m]-=r.c[m]; r.f(); updateCrafts(); }};
+        grid.appendChild(b);
     });
-    ctx.globalCompositeOperation = 'source-over';
+    document.getElementById('s2').innerText = tools[2]?tools[2].t:"VIDE";
+    document.getElementById('armor-txt').innerText = "Défense: " + p.def;
 }
 
-function updateUI() {
-    document.getElementById('hp-fill').style.width = p.hp + "%";
-    document.getElementById('inv-txt').innerText = `Bois: ${inv.bois} | Fer: ${inv.fer} | Palla: ${inv.palladium}`;
-    document.getElementById('def-txt').innerText = `Défense: ${p.def}`;
-    document.getElementById('s1').innerText = tools[1] ? tools[1].t.toUpperCase() : "MAIN";
-    document.getElementById('s2').innerText = tools[2] ? tools[2].t.toUpperCase() : "VIDE";
-    document.getElementById('s3').innerText = inv.torches > 0 ? `TORCHES (${inv.torches})` : "VIDE";
-    if(boss) { document.getElementById('boss-ui').style.display = 'block'; document.getElementById('boss-fill').style.width = (boss.hp/600)*100 + "%"; }
-}
-
+// TOUCHES & MOUSE
 cvs.onmousedown = e => {
     let cx = p.x-cvs.width/2, cy = p.y-cvs.height/2;
-    let mx = e.clientX+cx, my = e.clientY+cy, gx = Math.floor(mx/TILE), gy = Math.floor(my/TILE);
-    let id = world[gy]?.[gx];
-    if(id > 0) {
-        if(id===10) inv.bois += 2; if(id===3) inv.pierre++; if(id===5) inv.fer++; if(id===9) {
-            inv.palladium++; // Invocation Neighbor
-            if(world[gy][gx+1]===9 && world[gy][gx+2]===9) { boss = {x:mx, y:my-100, hp:600}; }
-        }
-        world[gy][gx] = 0; 
+    let gx = Math.floor((e.clientX+cx)/TILE), gy = Math.floor((e.clientY+cy)/TILE);
+    let id = world[gy][gx];
+    if(id > 0 && id !== 12) {
+        let lvl = tools[activeS]?.lvl || 0;
+        if(id>=10 || (id===3 && lvl>=1) || (id>=5 && lvl>=2)) mining = {gx, gy, t:0, cx: e.clientX, cy: e.clientY};
     }
-    if(activeS===3 && inv.torches > 0) { torches.push({x:gx, y:gy}); inv.torches--; }
-    updateUI();
 };
+cvs.onmouseup = () => { mining=null; document.getElementById('break-ui').style.display='none'; };
 
-window.onkeydown = e => { let k=e.key.toLowerCase(); keys[k]=true; if((k==='z'||k===' ') && p.grounded) { p.vy=-550; jumpCount++; } };
+window.onkeydown = e => { keys[e.key.toLowerCase()] = true; if((e.key===' '||e.key==='z') && p.grounded) p.vy=-500; };
 window.onkeyup = e => keys[e.key.toLowerCase()] = false;
 
-const jstk = document.getElementById('joystick'), knb = document.getElementById('knob');
-jstk.addEventListener('touchmove', e => { let r = jstk.getBoundingClientRect(); joyX = (e.touches[0].clientX - (r.left+55))/55; knb.style.transform = `translateX(${joyX*30}px)`; });
-jstk.addEventListener('touchend', () => { joyX = 0; knb.style.transform = `translateX(0px)`; });
-document.getElementById('jump-btn').addEventListener('touchstart', () => { if(p.grounded) { p.vy=-550; jumpCount++; } });
+// MOBILE JOYSTICK SIMULATION
+const mob = document.getElementById('mobile-ctrl');
+mob.addEventListener('touchstart', e => { let r=mob.getBoundingClientRect(); joyX = (e.touches[0].clientX-(r.left+60))/60; });
+mob.addEventListener('touchmove', e => { let r=mob.getBoundingClientRect(); joyX = (e.touches[0].clientX-(r.left+60))/60; });
+mob.addEventListener('touchend', () => joyX = 0);
+document.getElementById('jump-btn').addEventListener('touchstart', () => { if(p.grounded) p.vy=-500; });
 
-function sel(n) { activeS = n; document.querySelectorAll('.slot').forEach((s,i)=>s.classList.toggle('active', i+1===n)); }
-cvs.width = window.innerWidth; cvs.height = window.innerHeight;
+function sel(n) { activeS=n; document.querySelectorAll('.slot').forEach((s,i)=>s.classList.toggle('active', i+1===n)); }
 </script>
 </body>
 </html>
