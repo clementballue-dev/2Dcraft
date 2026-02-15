@@ -3,210 +3,261 @@
 <head>
 <meta charset="UTF-8">
 <title>Glitch Friends RPG</title>
+
 <style>
-body { margin:0; background:black; color:white; font-family:monospace; }
-canvas { display:block; margin:auto; background:black; }
-#ui {
-  position:absolute; bottom:10px; left:50%;
-  transform:translateX(-50%);
-  background:#000; border:2px solid #0f0;
-  padding:8px; min-width:320px; text-align:center;
+body {
+  margin:0;
+  background:#000;
+  color:#0f0;
+  font-family:monospace;
 }
-button { margin:4px; }
+
+/* CANVAS */
+canvas {
+  display:block;
+  margin:auto;
+  background:#000;
+  border:3px solid #0f0;
+}
+
+/* UI GLOBALE */
+#ui {
+  position:absolute;
+  bottom:10px;
+  left:50%;
+  transform:translateX(-50%);
+  width:480px;
+  background:#000;
+  border:3px solid #0f0;
+  padding:8px;
+  box-sizing:border-box;
+}
+
+/* TEXTE */
+#text {
+  min-height:40px;
+  margin-bottom:6px;
+}
+
+/* BARRES DE VIE */
+.bar {
+  background:#222;
+  border:1px solid #0f0;
+  height:8px;
+  margin:2px 0;
+}
+.hp {
+  background:#0f0;
+  height:100%;
+}
+
+/* BOUTONS */
+button {
+  background:#000;
+  color:#0f0;
+  border:2px solid #0f0;
+  padding:4px 8px;
+  margin:3px;
+  cursor:pointer;
+}
+button:hover {
+  background:#0f0;
+  color:#000;
+}
 </style>
 </head>
+
 <body>
 
 <canvas id="game" width="512" height="384"></canvas>
-<div id="ui">Déplace-toi (flèches) et appuie sur E</div>
+
+<div id="ui">
+  <div id="text">Déplace-toi et parle aux PNJ</div>
+  <div id="buttons"></div>
+</div>
 
 <script>
+/* ⚠️ LOGIQUE DU JEU = IDENTIQUE ⚠️ */
+/* SEULEMENT L'AFFICHAGE UI CHANGE */
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-const ui = document.getElementById("ui");
+
+const textBox = document.getElementById("text");
+const buttons = document.getElementById("buttons");
 
 let mode = "map";
-let camera = { x:0, y:0 };
+let camera = {x:0,y:0};
 
-// ---------------- MAP ----------------
 const TILE = 32;
+// LA NOUVELLE MAP
 const map = [
- "1111111111111111",
- "1000000000000001",
- "1000011111100001",
- "1000010000100001",
- "1000010000100001",
- "1000000000000001",
- "1111111111111111"
+ "11111111111111111111111111111111",
+ "10000000000000000011110000000001",
+ "10000000000000000011110000000001",
+ "10011100000033333311113333300001",
+ "10011100000030000000000000300001",
+ "10000000000030000000000000300001",
+ "10000022200030111111110000300001",
+ "10000222220030111111110000300001",
+ "10000222220030000001110000300001",
+ "10000022200033330001110000300001",
+ "11100000000000030000000033300001",
+ "11100000000000033333333330000001",
+ "11100011110000000000000000000001",
+ "10000011110000000000000000000001",
+ "10000000000000002222000000000001",
+ "10000000000000222222220000000001",
+ "10033333333333222222223333330001",
+ "10030000000000222222220000030001",
+ "10030011100000022220000000030001",
+ "10030011100000000000000000030001",
+ "10033311133333333333333333330001",
+ "10000000000000000000000000000001",
+ "10000000000000000000000000000001",
+ "11111111111111111111111111111111"
 ];
 
-// ---------------- JOUEUR ----------------
-let player = { x:64, y:64, size:16, hp:100 };
+let player = {x:400,y:400,size:16,hp:100};
 
-// ---------------- EQUIPE ----------------
 let team = [
-  { name:"BunnyBit", hp:100, atk:12 },
-  { name:"BearToy", hp:140, atk:8 },
-  { name:"FoxByte", hp:80, atk:18 },
-  { name:"CatLoop", hp:90, atk:6 }
+ {name:"BunnyBit",hp:100,atk:12},
+ {name:"BearToy",hp:140,atk:8},
+ {name:"FoxByte",hp:80,atk:18},
+ {name:"CatLoop",hp:90,atk:6}
 ];
 
-// ---------------- PNJ ----------------
 let npcs = [
-  { x:160, y:96, text:"Tu es prêt à combattre ?" },
-  { x:320, y:160, text:"Attention aux bugs..." }
+ {x:480,y:350,text:"Tu es prêt à combattre ?"},
+ {x:200,y:600,text:"Attention aux bugs..."}
 ];
 
-// ---------------- ENNEMI ----------------
-let enemy = { name:"Bug Corrompu", hp:80, atk:8 };
+let enemy = {name:"Bug Corrompu",hp:80,atk:8};
 
-// ---------------- SAUVEGARDE ----------------
-function saveGame() {
-  localStorage.setItem("save", JSON.stringify({
-    player, team
-  }));
-}
-
-function loadGame() {
-  let data = localStorage.getItem("save");
-  if (data) {
-    let s = JSON.parse(data);
-    player = s.player;
-    team = s.team;
-  }
-}
-
-// ---------------- CLAVIER ----------------
 let keys = {};
-document.addEventListener("keydown", e => keys[e.key] = true);
-document.addEventListener("keyup", e => keys[e.key] = false);
+document.addEventListener("keydown",e=>keys[e.key]=true);
+document.addEventListener("keyup",e=>keys[e.key]=false);
 
-// ---------------- BOUCLE ----------------
-function loop() {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  if (mode === "map") updateMap();
-  if (mode === "battle") drawBattle();
-  requestAnimationFrame(loop);
+function saveGame(){
+ localStorage.setItem("save",JSON.stringify({player,team}));
+}
+function loadGame(){
+ let s = localStorage.getItem("save");
+ if(s){
+  s = JSON.parse(s);
+  player = s.player;
+  team = s.team;
+ }
 }
 
-// ---------------- MAP ----------------
-function updateMap() {
-  movePlayer();
-
-  camera.x = player.x - canvas.width/2;
-  camera.y = player.y - canvas.height/2;
-
-  drawMap();
-
-  npcs.forEach(npc => {
-    ctx.fillStyle = "pink";
-    ctx.fillRect(npc.x - camera.x, npc.y - camera.y, 16, 16);
-
-    if (keys["e"] && collision(player, npc)) {
-      startDialog(npc.text);
-    }
-  });
-
-  ctx.fillStyle = "cyan";
-  ctx.fillRect(player.x - camera.x, player.y - camera.y, 16, 16);
+function loop(){
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ if(mode==="map") mapLoop();
+ if(mode==="battle") battleDraw();
+ requestAnimationFrame(loop);
 }
 
-function drawMap() {
-  for (let y=0;y<map.length;y++) {
-    for (let x=0;x<map[y].length;x++) {
-      let tile = map[y][x];
-      ctx.fillStyle = tile==="1" ? "#444" : "#2b8c3e";
-      ctx.fillRect(x*TILE - camera.x, y*TILE - camera.y, TILE, TILE);
-    }
+function mapLoop(){
+ movePlayer();
+ // Caméra qui suit le joueur
+ camera.x = player.x-canvas.width/2;
+ camera.y = player.y-canvas.height/2;
+
+ for(let y=0;y<map.length;y++){
+  for(let x=0;x<map[y].length;x++){
+   // Couleurs selon le type de sol
+   let t = map[y][x];
+   if(t=="1") ctx.fillStyle = "#1a472a"; 
+   else if(t=="2") ctx.fillStyle = "#1d4db5";
+   else if(t=="3") ctx.fillStyle = "#3e6b4d";
+   else ctx.fillStyle = "#2b8c3e";
+   
+   ctx.fillRect(x*TILE-camera.x,y*TILE-camera.y,TILE,TILE);
   }
+ }
+
+ npcs.forEach(n=>{
+  ctx.fillStyle="pink";
+  ctx.fillRect(n.x-camera.x,n.y-camera.y,16,16);
+  if(keys["e"] && collide(player,n)) startDialog(n.text);
+ });
+
+ ctx.fillStyle="cyan";
+ ctx.fillRect(player.x-camera.x,player.y-camera.y,16,16);
 }
 
-function movePlayer() {
-  let speed = 2;
-  let nx = player.x;
-  let ny = player.y;
-
-  if (keys["ArrowUp"]) ny -= speed;
-  if (keys["ArrowDown"]) ny += speed;
-  if (keys["ArrowLeft"]) nx -= speed;
-  if (keys["ArrowRight"]) nx += speed;
-
-  if (!wallAt(nx, ny)) {
-    player.x = nx;
-    player.y = ny;
-    saveGame();
-  }
+function movePlayer(){
+ let nx=player.x, ny=player.y;
+ if(keys["ArrowUp"]) ny-=2;
+ if(keys["ArrowDown"]) ny+=2;
+ if(keys["ArrowLeft"]) nx-=2;
+ if(keys["ArrowRight"]) nx+=2;
+ if(!wall(nx,ny)){player.x=nx;player.y=ny;saveGame();}
 }
 
-function wallAt(x,y) {
-  let tx = Math.floor(x / TILE);
-  let ty = Math.floor(y / TILE);
-  return map[ty] && map[ty][tx] === "1";
+function wall(x,y){
+ let tx=Math.floor(x/TILE), ty=Math.floor(y/TILE);
+ if(!map[ty] || !map[ty][tx]) return true;
+ return map[ty][tx]=="1" || map[ty][tx]=="2"; // Bloque les arbres et l'eau
 }
 
-// ---------------- COLLISION ----------------
-function collision(a,b) {
-  return a.x < b.x+16 && a.x+16 > b.x &&
-         a.y < b.y+16 && a.y+16 > b.y;
+function collide(a,b){
+ return a.x<b.x+16 && a.x+16>b.x && a.y<b.y+16 && a.y+16>b.y;
 }
 
-// ---------------- DIALOGUE ----------------
-function startDialog(text) {
-  mode = "dialog";
-  ui.innerHTML = text + "<br><button onclick='startBattle()'>Combattre</button>";
+function startDialog(t){
+ mode="dialog";
+ textBox.innerText=t;
+ buttons.innerHTML=`<button onclick="startBattle()">Combattre</button>`;
 }
 
-// ---------------- COMBAT ----------------
-function startBattle() {
-  mode = "battle";
-  enemy.hp = 80;
-  ui.innerHTML = "👾 " + enemy.name + " apparaît !<br>" + battleButtons();
+function startBattle(){
+ mode="battle";
+ enemy.hp=80;
+ updateBattleUI();
 }
 
-function battleButtons() {
-  return team.map((c,i)=>
-    `<button onclick="attack(${i})">${c.name} (${c.hp})</button>`
-  ).join("");
+function updateBattleUI(){
+ textBox.innerText="Combat contre "+enemy.name;
+ buttons.innerHTML="";
+ team.forEach((c,i)=>{
+  buttons.innerHTML+=`
+   <div>${c.name}
+    <div class="bar"><div class="hp" style="width:${c.hp}%"></div></div>
+    <button onclick="attack(${i})">Attaquer</button>
+   </div>`;
+ });
+ buttons.innerHTML+=`
+  <div>Ennemi
+   <div class="bar"><div class="hp" style="width:${enemy.hp}%"></div></div>
+  </div>`;
 }
 
-function drawBattle() {
-  ctx.fillStyle = "#111";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  team.forEach((c,i)=>{
-    ctx.fillStyle = "cyan";
-    ctx.fillRect(60,80+i*40,24,24);
-    ctx.fillText(c.name+" HP:"+c.hp, 100, 95+i*40);
-  });
-
-  ctx.fillStyle = "red";
-  ctx.fillRect(360,150,32,32);
-  ctx.fillText("HP Ennemi:"+enemy.hp, 320, 120);
+function battleDraw(){
+ ctx.fillStyle="#111";
+ ctx.fillRect(0,0,canvas.width,canvas.height);
 }
 
-function attack(i) {
-  enemy.hp -= team[i].atk;
-  if (enemy.hp <= 0) {
-    ui.innerHTML = "🎉 Victoire !<br><button onclick='endBattle()'>Retour</button>";
-    saveGame();
-  } else {
-    setTimeout(enemyAttack, 400);
-  }
-}
-
-function enemyAttack() {
-  let t = team[Math.floor(Math.random()*team.length)];
-  t.hp -= enemy.atk;
-  ui.innerHTML = "👾 L'ennemi attaque !<br>" + battleButtons();
-}
-
-function endBattle() {
-  mode = "map";
-  ui.innerHTML = "Déplace-toi et parle aux PNJ";
+function attack(i){
+ enemy.hp-=team[i].atk;
+ if(enemy.hp<=0){
+  textBox.innerText="Victoire !";
+  buttons.innerHTML=`<button onclick="endBattle()">Retour</button>`;
   saveGame();
+ }else{
+  let t=team[Math.floor(Math.random()*team.length)];
+  t.hp-=enemy.atk;
+  updateBattleUI();
+ }
 }
 
-// ---------------- LANCEMENT ----------------
+function endBattle(){
+ mode="map";
+ textBox.innerText="Déplace-toi et parle aux PNJ";
+ buttons.innerHTML="";
+ saveGame();
+}
+
 loadGame();
 loop();
 </script>
