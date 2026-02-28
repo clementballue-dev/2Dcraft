@@ -1,266 +1,89 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Glitch Friends RPG</title>
-
-<style>
-body {
-  margin:0;
-  background:#000;
-  color:#0f0;
-  font-family:monospace;
-}
-
-/* CANVAS */
-canvas {
-  display:block;
-  margin:auto;
-  background:#000;
-  border:3px solid #0f0;
-}
-
-/* UI GLOBALE */
-#ui {
-  position:absolute;
-  bottom:10px;
-  left:50%;
-  transform:translateX(-50%);
-  width:480px;
-  background:#000;
-  border:3px solid #0f0;
-  padding:8px;
-  box-sizing:border-box;
-}
-
-/* TEXTE */
-#text {
-  min-height:40px;
-  margin-bottom:6px;
-}
-
-/* BARRES DE VIE */
-.bar {
-  background:#222;
-  border:1px solid #0f0;
-  height:8px;
-  margin:2px 0;
-}
-.hp {
-  background:#0f0;
-  height:100%;
-}
-
-/* BOUTONS */
-button {
-  background:#000;
-  color:#0f0;
-  border:2px solid #0f0;
-  padding:4px 8px;
-  margin:3px;
-  cursor:pointer;
-}
-button:hover {
-  background:#0f0;
-  color:#000;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebAgency | Ton site clé en main</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
+<body class="bg-slate-50 text-slate-900 font-sans">
 
-<body>
+    <nav class="p-6 flex justify-between items-center bg-white shadow-sm sticky top-0 z-50">
+        <h1 class="text-2xl font-bold text-indigo-600">Web<span class="text-slate-800">Fast</span></h1>
+        <a href="#offres" class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition">Commander</a>
+    </nav>
 
-<canvas id="game" width="512" height="384"></canvas>
+    <header class="py-20 px-6 text-center bg-gradient-to-b from-white to-slate-50">
+        <h2 class="text-5xl font-extrabold mb-6">Un site pro, <span class="text-indigo-600">sans attendre.</span></h2>
+        <p class="text-xl text-slate-600 max-w-2xl mx-auto mb-10">Choisissez votre type de site, payez en une fois, et recevez votre outil de travail prêt à l'emploi en 7 jours.</p>
+        <div class="flex justify-center gap-4">
+            <div class="flex items-center gap-2 text-sm text-slate-500"><i class="fas fa-check-circle text-green-500"></i> Design Unique</div>
+            <div class="flex items-center gap-2 text-sm text-slate-500"><i class="fas fa-check-circle text-green-500"></i> Optimisé Mobile</div>
+            <div class="flex items-center gap-2 text-sm text-slate-500"><i class="fas fa-check-circle text-green-500"></i> Support 7j/7</div>
+        </div>
+    </header>
 
-<div id="ui">
-  <div id="text">Déplace-toi et parle aux PNJ</div>
-  <div id="buttons"></div>
-</div>
+    <section id="offres" class="py-20 px-6 max-w-6xl mx-auto">
+        <h3 class="text-3xl font-bold text-center mb-16">Sélectionnez votre projet</h3>
+        
+        <div class="grid md:grid-cols-3 gap-8">
+            
+            <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 hover:border-indigo-400 transition-all group">
+                <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-rocket"></i></div>
+                <h4 class="text-2xl font-bold mb-2">Landing Page</h4>
+                <p class="text-slate-500 mb-6">Idéal pour lancer un produit ou capturer des emails.</p>
+                <div class="text-4xl font-black mb-8">490€</div>
+                <ul class="space-y-4 mb-10 text-slate-600">
+                    <li><i class="fas fa-check text-indigo-500 mr-2"></i> Page unique ultra-rapide</li>
+                    <li><i class="fas fa-check text-indigo-500 mr-2"></i> Formulaire de contact</li>
+                    <li><i class="fas fa-check text-indigo-500 mr-2"></i> Intégration Newsletter</li>
+                </ul>
+                <button onclick="selectPack('Landing Page', 490)" class="w-full py-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-bold group-hover:bg-indigo-600 group-hover:text-white transition">Choisir ce pack</button>
+            </div>
 
-<script>
-/* ⚠️ LOGIQUE DU JEU = IDENTIQUE ⚠️ */
-/* SEULEMENT L'AFFICHAGE UI CHANGE */
+            <div class="bg-white p-8 rounded-2xl shadow-2xl border-2 border-indigo-600 transform scale-105 relative">
+                <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-1 rounded-full text-sm font-bold uppercase tracking-widest">Populaire</span>
+                <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-store"></i></div>
+                <h4 class="text-2xl font-bold mb-2">Site Vitrine</h4>
+                <p class="text-slate-500 mb-6">Pour présenter votre activité de manière pro.</p>
+                <div class="text-4xl font-black mb-8">990€</div>
+                <ul class="space-y-4 mb-10 text-slate-600">
+                    <li><i class="fas fa-check text-indigo-500 mr-2"></i> Jusqu'à 5 pages pro</li>
+                    <li><i class="fas fa-check text-indigo-500 mr-2"></i> Référencement Google (SEO)</li>
+                    <li><i class="fas fa-check text-indigo-500 mr-2"></i> Carte interactive Google</li>
+                </ul>
+                <button onclick="selectPack('Site Vitrine', 990)" class="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition">Choisir ce pack</button>
+            </div>
 
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+            <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 hover:border-indigo-400 transition-all group">
+                <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-shopping-cart"></i></div>
+                <h4 class="text-2xl font-bold mb-2">E-Commerce</h4>
+                <p class="text-slate-500 mb-6">Vendez vos produits en ligne en toute sécurité.</p>
+                <div class="text-4xl font-black mb-8">1890€</div>
+                <ul class="space-y-4 mb-10 text-slate-600">
+                    <li><i class="fas fa-check text-indigo-500 mr-2"></i> Boutique complète</li>
+                    <li><i class="fas fa-check text-indigo-500 mr-2"></i> Paiement Stripe/PayPal</li>
+                    <li><i class="fas fa-check text-indigo-500 mr-2"></i> Gestion des stocks</li>
+                </ul>
+                <button onclick="selectPack('E-Commerce', 1890)" class="w-full py-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-bold group-hover:bg-indigo-600 group-hover:text-white transition">Choisir ce pack</button>
+            </div>
 
-const textBox = document.getElementById("text");
-const buttons = document.getElementById("buttons");
+        </div>
+    </section>
 
-let mode = "map";
-let camera = {x:0,y:0};
+    <footer class="py-10 text-center text-slate-400 border-t border-slate-200">
+        <p>&copy; 2026 WebFast Agency. Tous droits réservés.</p>
+    </footer>
 
-const TILE = 32;
-// LA NOUVELLE MAP
-const map = [
- "11111111111111111111111111111111",
- "10000000000000000011110000000001",
- "10000000000000000011110000000001",
- "10011100000033333311113333300001",
- "10011100000030000000000000300001",
- "10000000000030000000000000300001",
- "10000022200030111111110000300001",
- "10000222220030111111110000300001",
- "10000222220030000001110000300001",
- "10000022200033330001110000300001",
- "11100000000000030000000033300001",
- "11100000000000033333333330000001",
- "11100011110000000000000000000001",
- "10000011110000000000000000000001",
- "10000000000000002222000000000001",
- "10000000000000222222220000000001",
- "10033333333333222222223333330001",
- "10030000000000222222220000030001",
- "10030011100000022220000000030001",
- "10030011100000000000000000030001",
- "10033311133333333333333333330001",
- "10000000000000000000000000000001",
- "10000000000000000000000000000001",
- "11111111111111111111111111111111"
-];
-
-let player = {x:400,y:400,size:16,hp:100};
-
-let team = [
- {name:"BunnyBit",hp:100,atk:12},
- {name:"BearToy",hp:140,atk:8},
- {name:"FoxByte",hp:80,atk:18},
- {name:"CatLoop",hp:90,atk:6}
-];
-
-let npcs = [
- {x:480,y:350,text:"Tu es prêt à combattre ?"},
- {x:200,y:600,text:"Attention aux bugs..."}
-];
-
-let enemy = {name:"Bug Corrompu",hp:80,atk:8};
-
-let keys = {};
-document.addEventListener("keydown",e=>keys[e.key]=true);
-document.addEventListener("keyup",e=>keys[e.key]=false);
-
-function saveGame(){
- localStorage.setItem("save",JSON.stringify({player,team}));
-}
-function loadGame(){
- let s = localStorage.getItem("save");
- if(s){
-  s = JSON.parse(s);
-  player = s.player;
-  team = s.team;
- }
-}
-
-function loop(){
- ctx.clearRect(0,0,canvas.width,canvas.height);
- if(mode==="map") mapLoop();
- if(mode==="battle") battleDraw();
- requestAnimationFrame(loop);
-}
-
-function mapLoop(){
- movePlayer();
- // Caméra qui suit le joueur
- camera.x = player.x-canvas.width/2;
- camera.y = player.y-canvas.height/2;
-
- for(let y=0;y<map.length;y++){
-  for(let x=0;x<map[y].length;x++){
-   // Couleurs selon le type de sol
-   let t = map[y][x];
-   if(t=="1") ctx.fillStyle = "#1a472a"; 
-   else if(t=="2") ctx.fillStyle = "#1d4db5";
-   else if(t=="3") ctx.fillStyle = "#3e6b4d";
-   else ctx.fillStyle = "#2b8c3e";
-   
-   ctx.fillRect(x*TILE-camera.x,y*TILE-camera.y,TILE,TILE);
-  }
- }
-
- npcs.forEach(n=>{
-  ctx.fillStyle="pink";
-  ctx.fillRect(n.x-camera.x,n.y-camera.y,16,16);
-  if(keys["e"] && collide(player,n)) startDialog(n.text);
- });
-
- ctx.fillStyle="cyan";
- ctx.fillRect(player.x-camera.x,player.y-camera.y,16,16);
-}
-
-function movePlayer(){
- let nx=player.x, ny=player.y;
- if(keys["ArrowUp"]) ny-=2;
- if(keys["ArrowDown"]) ny+=2;
- if(keys["ArrowLeft"]) nx-=2;
- if(keys["ArrowRight"]) nx+=2;
- if(!wall(nx,ny)){player.x=nx;player.y=ny;saveGame();}
-}
-
-function wall(x,y){
- let tx=Math.floor(x/TILE), ty=Math.floor(y/TILE);
- if(!map[ty] || !map[ty][tx]) return true;
- return map[ty][tx]=="1" || map[ty][tx]=="2"; // Bloque les arbres et l'eau
-}
-
-function collide(a,b){
- return a.x<b.x+16 && a.x+16>b.x && a.y<b.y+16 && a.y+16>b.y;
-}
-
-function startDialog(t){
- mode="dialog";
- textBox.innerText=t;
- buttons.innerHTML=`<button onclick="startBattle()">Combattre</button>`;
-}
-
-function startBattle(){
- mode="battle";
- enemy.hp=80;
- updateBattleUI();
-}
-
-function updateBattleUI(){
- textBox.innerText="Combat contre "+enemy.name;
- buttons.innerHTML="";
- team.forEach((c,i)=>{
-  buttons.innerHTML+=`
-   <div>${c.name}
-    <div class="bar"><div class="hp" style="width:${c.hp}%"></div></div>
-    <button onclick="attack(${i})">Attaquer</button>
-   </div>`;
- });
- buttons.innerHTML+=`
-  <div>Ennemi
-   <div class="bar"><div class="hp" style="width:${enemy.hp}%"></div></div>
-  </div>`;
-}
-
-function battleDraw(){
- ctx.fillStyle="#111";
- ctx.fillRect(0,0,canvas.width,canvas.height);
-}
-
-function attack(i){
- enemy.hp-=team[i].atk;
- if(enemy.hp<=0){
-  textBox.innerText="Victoire !";
-  buttons.innerHTML=`<button onclick="endBattle()">Retour</button>`;
-  saveGame();
- }else{
-  let t=team[Math.floor(Math.random()*team.length)];
-  t.hp-=enemy.atk;
-  updateBattleUI();
- }
-}
-
-function endBattle(){
- mode="map";
- textBox.innerText="Déplace-toi et parle aux PNJ";
- buttons.innerHTML="";
- saveGame();
-}
-
-loadGame();
-loop();
-</script>
+    <script>
+        function selectPack(name, price) {
+            // Ici, tu pourrais rediriger vers un lien de paiement Stripe direct
+            alert("Excellent choix : " + name + " (" + price + "€).\n\nDans la version finale, ce bouton vous redirigera vers le paiement sécurisé.");
+            // Exemple de redirection vers Stripe :
+            // window.location.href = "https://buy.stripe.com/ton_lien_personnalise";
+        }
+    </script>
 
 </body>
 </html>
