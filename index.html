@@ -6,6 +6,9 @@
     <title>WebAgency | Ton site clé en main</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        #brief-section { display: none; }
+    </style>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans">
 
@@ -14,61 +17,71 @@
         <a href="#offres" class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition">Commander</a>
     </nav>
 
-    <header class="py-20 px-6 text-center bg-gradient-to-b from-white to-slate-50">
-        <h2 class="text-5xl font-extrabold mb-6">Un site pro, <span class="text-indigo-600">sans attendre.</span></h2>
-        <p class="text-xl text-slate-600 max-w-2xl mx-auto mb-10">Choisissez votre type de site, payez en une fois, et recevez votre outil de travail prêt à l'emploi en 7 jours.</p>
-        <div class="flex justify-center gap-4">
-            <div class="flex items-center gap-2 text-sm text-slate-500"><i class="fas fa-check-circle text-green-500"></i> Design Unique</div>
-            <div class="flex items-center gap-2 text-sm text-slate-500"><i class="fas fa-check-circle text-green-500"></i> Optimisé Mobile</div>
-            <div class="flex items-center gap-2 text-sm text-slate-500"><i class="fas fa-check-circle text-green-500"></i> Support 7j/7</div>
-        </div>
-    </header>
+    <div id="main-content">
+        <header class="py-20 px-6 text-center bg-gradient-to-b from-white to-slate-50">
+            <h2 class="text-5xl font-extrabold mb-6">Un site pro, <span class="text-indigo-600">sans attendre.</span></h2>
+            <p class="text-xl text-slate-600 max-w-2xl mx-auto mb-10">Choisissez votre type de site, remplissez vos besoins, et recevez votre site prêt à l'emploi.</p>
+        </header>
 
-    <section id="offres" class="py-20 px-6 max-w-6xl mx-auto">
-        <h3 class="text-3xl font-bold text-center mb-16">Sélectionnez votre projet</h3>
-        
-        <div class="grid md:grid-cols-3 gap-8">
+        <section id="offres" class="py-20 px-6 max-w-6xl mx-auto">
+            <div class="grid md:grid-cols-3 gap-8">
+                
+                <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 hover:border-indigo-400 transition-all group">
+                    <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-rocket"></i></div>
+                    <h4 class="text-2xl font-bold mb-2">Landing Page</h4>
+                    <div class="text-4xl font-black mb-8">149€</div>
+                    <ul class="space-y-4 mb-10 text-slate-600 italic">
+                        <li>"Idéal pour capturer des emails"</li>
+                    </ul>
+                    <button onclick="showBrief('Landing Page', 149)" class="w-full py-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-bold group-hover:bg-indigo-600 group-hover:text-white transition">Choisir ce pack</button>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-2xl border-2 border-indigo-600 transform scale-105 relative">
+                    <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-1 rounded-full text-sm font-bold uppercase tracking-widest">Populaire</span>
+                    <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-store"></i></div>
+                    <h4 class="text-2xl font-bold mb-2">Site Vitrine</h4>
+                    <div class="text-4xl font-black mb-8">399€</div>
+                    <ul class="space-y-4 mb-10 text-slate-600 italic">
+                        <li>"Pour présenter votre activité pro"</li>
+                    </ul>
+                    <button onclick="showBrief('Site Vitrine', 399)" class="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition">Choisir ce pack</button>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 hover:border-indigo-400 transition-all group">
+                    <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-shopping-cart"></i></div>
+                    <h4 class="text-2xl font-bold mb-2">E-Commerce</h4>
+                    <div class="text-4xl font-black mb-8">749€</div>
+                    <ul class="space-y-4 mb-10 text-slate-600 italic">
+                        <li>"Vendez vos produits en ligne"</li>
+                    </ul>
+                    <button onclick="showBrief('E-Commerce', 749)" class="w-full py-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-bold group-hover:bg-indigo-600 group-hover:text-white transition">Choisir ce pack</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <section id="brief-section" class="py-20 px-6 max-w-3xl mx-auto">
+        <button onclick="goBack()" class="text-indigo-600 mb-6 flex items-center gap-2 hover:underline"><i class="fas fa-arrow-left"></i> Retour aux offres</button>
+        <div class="bg-white p-10 rounded-3xl shadow-xl">
+            <h3 class="text-3xl font-bold mb-2">Votre Projet : <span id="selected-pack-name" class="text-indigo-600"></span></h3>
+            <p class="text-slate-500 mb-8 italic">Décrivez-moi exactement ce que vous voulez pour votre site.</p>
             
-            <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 hover:border-indigo-400 transition-all group">
-                <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-rocket"></i></div>
-                <h4 class="text-2xl font-bold mb-2">Landing Page</h4>
-                <p class="text-slate-500 mb-6">Idéal pour lancer un produit ou capturer des emails.</p>
-                <div class="text-4xl font-black mb-8">149€</div>
-                <ul class="space-y-4 mb-10 text-slate-600">
-                    <li><i class="fas fa-check text-indigo-500 mr-2"></i> Page unique ultra-rapide</li>
-                    <li><i class="fas fa-check text-indigo-500 mr-2"></i> Formulaire de contact</li>
-                    <li><i class="fas fa-check text-indigo-500 mr-2"></i> Intégration Newsletter</li>
-                </ul>
-                <button onclick="selectPack('Landing Page', 149, 'Ce pack inclut la création d\'une page de vente optimisée pour convertir vos visiteurs en clients. Parfait pour les lancements de produits ou les coachs. Livraison sous 48h.')" class="w-full py-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-bold group-hover:bg-indigo-600 group-hover:text-white transition">Choisir ce pack</button>
-            </div>
-
-            <div class="bg-white p-8 rounded-2xl shadow-2xl border-2 border-indigo-600 transform scale-105 relative">
-                <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-1 rounded-full text-sm font-bold uppercase tracking-widest">Populaire</span>
-                <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-store"></i></div>
-                <h4 class="text-2xl font-bold mb-2">Site Vitrine</h4>
-                <p class="text-slate-500 mb-6">Pour présenter votre activité de manière pro.</p>
-                <div class="text-4xl font-black mb-8">399€</div>
-                <ul class="space-y-4 mb-10 text-slate-600">
-                    <li><i class="fas fa-check text-indigo-500 mr-2"></i> Jusqu'à 5 pages pro</li>
-                    <li><i class="fas fa-check text-indigo-500 mr-2"></i> Référencement Google (SEO)</li>
-                    <li><i class="fas fa-check text-indigo-500 mr-2"></i> Carte interactive Google</li>
-                </ul>
-                <button onclick="selectPack('Site Vitrine', 399, 'La solution complète pour les artisans et PME. Inclus : Accueil, Services, À Propos, Galerie Photo et Contact. Nous optimisons votre présence sur Google Maps.')" class="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition">Choisir ce pack</button>
-            </div>
-
-            <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 hover:border-indigo-400 transition-all group">
-                <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-shopping-cart"></i></div>
-                <h4 class="text-2xl font-bold mb-2">E-Commerce</h4>
-                <p class="text-slate-500 mb-6">Vendez vos produits en ligne en toute sécurité.</p>
-                <div class="text-4xl font-black mb-8">749€</div>
-                <ul class="space-y-4 mb-10 text-slate-600">
-                    <li><i class="fas fa-check text-indigo-500 mr-2"></i> Boutique complète</li>
-                    <li><i class="fas fa-check text-indigo-500 mr-2"></i> Paiement Stripe/PayPal</li>
-                    <li><i class="fas fa-check text-indigo-500 mr-2"></i> Gestion des stocks</li>
-                </ul>
-                <button onclick="selectPack('E-Commerce', 749, 'Une boutique en ligne robuste gérant les paiements sécurisés, les taxes et les frais de port. Vous recevez une interface pour gérer vos stocks et vos commandes seul.')" class="w-full py-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-bold group-hover:bg-indigo-600 group-hover:text-white transition">Choisir ce pack</button>
-            </div>
-
+            <form id="orderForm" onsubmit="submitOrder(event)">
+                <div class="space-y-6">
+                    <div>
+                        <label class="block font-bold mb-2">Votre Nom / Entreprise</label>
+                        <input type="text" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none" placeholder="Ex: Garage Jean Dupont">
+                    </div>
+                    <div>
+                        <label class="block font-bold mb-2">Besoins particuliers & détails</label>
+                        <textarea required rows="6" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none" placeholder="Ex: Je veux un site avec un fond bleu, une page pour mes tarifs, et un bouton WhatsApp..."></textarea>
+                    </div>
+                    <div class="p-6 bg-indigo-50 rounded-2xl border border-indigo-100 text-indigo-900 font-medium">
+                        Total à payer : <span id="selected-pack-price" class="font-bold text-2xl"></span>€
+                    </div>
+                    <button type="submit" class="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl text-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">Valider et passer au paiement</button>
+                </div>
+            </form>
         </div>
     </section>
 
@@ -77,9 +90,23 @@
     </footer>
 
     <script>
-        function selectPack(name, price, description) {
-            // Affiche la description précise avant de proposer le paiement
-            alert("DÉTAILS DU PACK : " + name + "\n\n" + description + "\n\nTOTAL : " + price + "€\n\nSouhaitez-vous continuer vers le formulaire de paiement ?");
+        function showBrief(name, price) {
+            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('brief-section').style.display = 'block';
+            document.getElementById('selected-pack-name').innerText = name;
+            document.getElementById('selected-pack-price').innerText = price;
+            window.scrollTo(0,0);
+        }
+
+        function goBack() {
+            document.getElementById('main-content').style.display = 'block';
+            document.getElementById('brief-section').style.display = 'none';
+        }
+
+        function submitOrder(e) {
+            e.preventDefault();
+            alert("Merci ! Vos instructions ont été enregistrées.\n\nRedirection vers le paiement sécurisé...");
+            // Ici tu mettrais ton lien Stripe
         }
     </script>
 
