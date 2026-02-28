@@ -20,7 +20,7 @@
     <div id="main-content">
         <header class="py-20 px-6 text-center bg-gradient-to-b from-white to-slate-50">
             <h2 class="text-5xl font-extrabold mb-6">Un site pro, <span class="text-indigo-600">sans attendre.</span></h2>
-            <p class="text-xl text-slate-600 max-w-2xl mx-auto mb-10">Choisissez votre type de site, remplissez vos besoins, et recevez votre site prêt à l'emploi.</p>
+            <p class="text-xl text-slate-600 max-w-2xl mx-auto mb-10">Choisissez votre type de site, remplissez vos besoins, et recevez votre outil de travail prêt à l'emploi.</p>
         </header>
 
         <section id="offres" class="py-20 px-6 max-w-6xl mx-auto">
@@ -61,31 +61,41 @@
     </div>
 
     <section id="brief-section" class="py-20 px-6 max-w-3xl mx-auto">
-        <button onclick="goBack()" class="text-indigo-600 mb-6 flex items-center gap-2 hover:underline"><i class="fas fa-arrow-left"></i> Retour aux offres</button>
-        <div class="bg-white p-10 rounded-3xl shadow-xl">
-            <h3 class="text-3xl font-bold mb-2">Votre Projet : <span id="selected-pack-name" class="text-indigo-600"></span></h3>
-            <p class="text-slate-500 mb-8 italic">Décrivez-moi exactement ce que vous voulez pour votre site.</p>
+        <button onclick="goBack()" class="text-indigo-600 mb-6 flex items-center gap-2 hover:underline font-semibold"><i class="fas fa-arrow-left"></i> Retour aux offres</button>
+        <div class="bg-white p-10 rounded-3xl shadow-xl border border-slate-100">
+            <h3 class="text-3xl font-bold mb-2">Détails de votre <span id="selected-pack-name" class="text-indigo-600"></span></h3>
+            <p class="text-slate-500 mb-10 italic border-b pb-6">Complétez les informations ci-dessous pour personnaliser votre projet.</p>
             
             <form id="orderForm" onsubmit="submitOrder(event)">
-                <div class="space-y-6">
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
                     <div>
-                        <label class="block font-bold mb-2">Votre Nom / Entreprise</label>
-                        <input type="text" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none" placeholder="Ex: Garage Jean Dupont">
+                        <label class="block font-bold mb-2 text-slate-700">Nom de l'entreprise</label>
+                        <input type="text" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none" placeholder="Ex: Jean Coiffure">
                     </div>
                     <div>
-                        <label class="block font-bold mb-2">Besoins particuliers & détails</label>
-                        <textarea required rows="6" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none" placeholder="Ex: Je veux un site avec un fond bleu, une page pour mes tarifs, et un bouton WhatsApp..."></textarea>
+                        <label class="block font-bold mb-2 text-slate-700">Domaine d'activité</label>
+                        <input type="text" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none" placeholder="Ex: Artisan, Coach, Restauration">
                     </div>
-                    <div class="p-6 bg-indigo-50 rounded-2xl border border-indigo-100 text-indigo-900 font-medium">
-                        Total à payer : <span id="selected-pack-price" class="font-bold text-2xl"></span>€
-                    </div>
-                    <button type="submit" class="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl text-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">Valider et passer au paiement</button>
                 </div>
+
+                <div class="mb-8">
+                    <label class="block font-bold mb-2 text-slate-700">Vos demandes particulières (Texte libre)</label>
+                    <textarea required rows="6" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none" placeholder="Couleurs souhaitées, pages spécifiques, logo à inclure..."></textarea>
+                </div>
+
+                <div class="p-6 bg-indigo-50 rounded-2xl border border-indigo-100 text-indigo-900 flex justify-between items-center mb-8">
+                    <span class="font-medium">Total de votre commande :</span>
+                    <span class="font-black text-3xl"><span id="selected-pack-price"></span>€</span>
+                </div>
+
+                <button type="submit" class="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl text-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">
+                    Valider et envoyer
+                </button>
             </form>
         </div>
     </section>
 
-    <footer class="py-10 text-center text-slate-400 border-t border-slate-200">
+    <footer class="py-10 text-center text-slate-400 border-t border-slate-200 mt-10">
         <p>&copy; 2026 WebFast Agency. Tous droits réservés.</p>
     </footer>
 
@@ -105,8 +115,8 @@
 
         function submitOrder(e) {
             e.preventDefault();
-            alert("Merci ! Vos instructions ont été enregistrées.\n\nRedirection vers le paiement sécurisé...");
-            // Ici tu mettrais ton lien Stripe
+            // Récupération des données pour l'exemple
+            alert("Merci ! Vos informations pour le pack " + document.getElementById('selected-pack-name').innerText + " ont bien été enregistrées.\n\nPréparez-vous à recevoir votre site !");
         }
     </script>
 
