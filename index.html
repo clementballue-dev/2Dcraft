@@ -33,13 +33,13 @@
                 <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-rocket"></i></div>
                 <h4 class="text-2xl font-bold mb-2">Landing Page</h4>
                 <p class="text-slate-500 mb-6">Idéal pour lancer un produit ou capturer des emails.</p>
-                <div class="text-4xl font-black mb-8">490€</div>
+                <div class="text-4xl font-black mb-8">149€</div>
                 <ul class="space-y-4 mb-10 text-slate-600">
                     <li><i class="fas fa-check text-indigo-500 mr-2"></i> Page unique ultra-rapide</li>
                     <li><i class="fas fa-check text-indigo-500 mr-2"></i> Formulaire de contact</li>
                     <li><i class="fas fa-check text-indigo-500 mr-2"></i> Intégration Newsletter</li>
                 </ul>
-                <button onclick="selectPack('Landing Page', 490)" class="w-full py-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-bold group-hover:bg-indigo-600 group-hover:text-white transition">Choisir ce pack</button>
+                <button onclick="selectPack('Landing Page', 149, 'Ce pack inclut la création d\'une page de vente optimisée pour convertir vos visiteurs en clients. Parfait pour les lancements de produits ou les coachs. Livraison sous 48h.')" class="w-full py-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-bold group-hover:bg-indigo-600 group-hover:text-white transition">Choisir ce pack</button>
             </div>
 
             <div class="bg-white p-8 rounded-2xl shadow-2xl border-2 border-indigo-600 transform scale-105 relative">
@@ -47,26 +47,26 @@
                 <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-store"></i></div>
                 <h4 class="text-2xl font-bold mb-2">Site Vitrine</h4>
                 <p class="text-slate-500 mb-6">Pour présenter votre activité de manière pro.</p>
-                <div class="text-4xl font-black mb-8">990€</div>
+                <div class="text-4xl font-black mb-8">399€</div>
                 <ul class="space-y-4 mb-10 text-slate-600">
                     <li><i class="fas fa-check text-indigo-500 mr-2"></i> Jusqu'à 5 pages pro</li>
                     <li><i class="fas fa-check text-indigo-500 mr-2"></i> Référencement Google (SEO)</li>
                     <li><i class="fas fa-check text-indigo-500 mr-2"></i> Carte interactive Google</li>
                 </ul>
-                <button onclick="selectPack('Site Vitrine', 990)" class="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition">Choisir ce pack</button>
+                <button onclick="selectPack('Site Vitrine', 399, 'La solution complète pour les artisans et PME. Inclus : Accueil, Services, À Propos, Galerie Photo et Contact. Nous optimisons votre présence sur Google Maps.')" class="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition">Choisir ce pack</button>
             </div>
 
             <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 hover:border-indigo-400 transition-all group">
                 <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-shopping-cart"></i></div>
                 <h4 class="text-2xl font-bold mb-2">E-Commerce</h4>
                 <p class="text-slate-500 mb-6">Vendez vos produits en ligne en toute sécurité.</p>
-                <div class="text-4xl font-black mb-8">1890€</div>
+                <div class="text-4xl font-black mb-8">749€</div>
                 <ul class="space-y-4 mb-10 text-slate-600">
                     <li><i class="fas fa-check text-indigo-500 mr-2"></i> Boutique complète</li>
                     <li><i class="fas fa-check text-indigo-500 mr-2"></i> Paiement Stripe/PayPal</li>
                     <li><i class="fas fa-check text-indigo-500 mr-2"></i> Gestion des stocks</li>
                 </ul>
-                <button onclick="selectPack('E-Commerce', 1890)" class="w-full py-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-bold group-hover:bg-indigo-600 group-hover:text-white transition">Choisir ce pack</button>
+                <button onclick="selectPack('E-Commerce', 749, 'Une boutique en ligne robuste gérant les paiements sécurisés, les taxes et les frais de port. Vous recevez une interface pour gérer vos stocks et vos commandes seul.')" class="w-full py-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-bold group-hover:bg-indigo-600 group-hover:text-white transition">Choisir ce pack</button>
             </div>
 
         </div>
@@ -77,11 +77,9 @@
     </footer>
 
     <script>
-        function selectPack(name, price) {
-            // Ici, tu pourrais rediriger vers un lien de paiement Stripe direct
-            alert("Excellent choix : " + name + " (" + price + "€).\n\nDans la version finale, ce bouton vous redirigera vers le paiement sécurisé.");
-            // Exemple de redirection vers Stripe :
-            // window.location.href = "https://buy.stripe.com/ton_lien_personnalise";
+        function selectPack(name, price, description) {
+            // Affiche la description précise avant de proposer le paiement
+            alert("DÉTAILS DU PACK : " + name + "\n\n" + description + "\n\nTOTAL : " + price + "€\n\nSouhaitez-vous continuer vers le formulaire de paiement ?");
         }
     </script>
 
