@@ -20,19 +20,15 @@
     <div id="main-content">
         <header class="py-20 px-6 text-center bg-gradient-to-b from-white to-slate-50">
             <h2 class="text-5xl font-extrabold mb-6">Un site pro, <span class="text-indigo-600">sans attendre.</span></h2>
-            <p class="text-xl text-slate-600 max-w-2xl mx-auto mb-10">Choisissez votre type de site, remplissez vos besoins, et recevez votre outil de travail prêt à l'emploi.</p>
+            <p class="text-xl text-slate-600 max-w-2xl mx-auto mb-10">Choisissez votre type de site et envoyez-nous vos besoins.</p>
         </header>
 
         <section id="offres" class="py-20 px-6 max-w-6xl mx-auto">
             <div class="grid md:grid-cols-3 gap-8">
-                
                 <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 hover:border-indigo-400 transition-all group">
                     <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-rocket"></i></div>
                     <h4 class="text-2xl font-bold mb-2">Landing Page</h4>
                     <div class="text-4xl font-black mb-8">149€</div>
-                    <ul class="space-y-4 mb-10 text-slate-600 italic">
-                        <li>"Idéal pour capturer des emails"</li>
-                    </ul>
                     <button onclick="showBrief('Landing Page', 149)" class="w-full py-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-bold group-hover:bg-indigo-600 group-hover:text-white transition">Choisir ce pack</button>
                 </div>
 
@@ -41,9 +37,6 @@
                     <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-store"></i></div>
                     <h4 class="text-2xl font-bold mb-2">Site Vitrine</h4>
                     <div class="text-4xl font-black mb-8">399€</div>
-                    <ul class="space-y-4 mb-10 text-slate-600 italic">
-                        <li>"Pour présenter votre activité pro"</li>
-                    </ul>
                     <button onclick="showBrief('Site Vitrine', 399)" class="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition">Choisir ce pack</button>
                 </div>
 
@@ -51,9 +44,6 @@
                     <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-shopping-cart"></i></div>
                     <h4 class="text-2xl font-bold mb-2">E-Commerce</h4>
                     <div class="text-4xl font-black mb-8">749€</div>
-                    <ul class="space-y-4 mb-10 text-slate-600 italic">
-                        <li>"Vendez vos produits en ligne"</li>
-                    </ul>
                     <button onclick="showBrief('E-Commerce', 749)" class="w-full py-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-bold group-hover:bg-indigo-600 group-hover:text-white transition">Choisir ce pack</button>
                 </div>
             </div>
@@ -64,42 +54,50 @@
         <button onclick="goBack()" class="text-indigo-600 mb-6 flex items-center gap-2 hover:underline font-semibold"><i class="fas fa-arrow-left"></i> Retour aux offres</button>
         <div class="bg-white p-10 rounded-3xl shadow-xl border border-slate-100">
             <h3 class="text-3xl font-bold mb-2">Détails de votre <span id="selected-pack-name" class="text-indigo-600"></span></h3>
-            <p class="text-slate-500 mb-10 italic border-b pb-6">Complétez les informations ci-dessous pour personnaliser votre projet.</p>
+            <p class="text-slate-500 mb-10 italic border-b pb-6">Remplissez ces champs pour que je reçoive votre demande sur Discord.</p>
             
-            <form id="orderForm" onsubmit="submitOrder(event)">
+            <form id="orderForm">
                 <div class="grid md:grid-cols-2 gap-6 mb-6">
                     <div>
-                        <label class="block font-bold mb-2 text-slate-700">Nom de l'entreprise</label>
-                        <input type="text" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none" placeholder="Ex: Jean Coiffure">
+                        <label class="block font-bold mb-2 text-slate-700">Nom / Entreprise</label>
+                        <input type="text" id="company" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Ex: Jean Coiffure">
                     </div>
                     <div>
                         <label class="block font-bold mb-2 text-slate-700">Domaine d'activité</label>
-                        <input type="text" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none" placeholder="Ex: Artisan, Coach, Restauration">
+                        <input type="text" id="domain" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Ex: Artisan, Restauration">
                     </div>
                 </div>
 
+                <div class="mb-6">
+                    <label class="block font-bold mb-2 text-slate-700">Ton Email ou Téléphone</label>
+                    <input type="text" id="contact" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Pour te recontacter">
+                </div>
+
                 <div class="mb-8">
-                    <label class="block font-bold mb-2 text-slate-700">Vos demandes particulières (Texte libre)</label>
-                    <textarea required rows="6" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none" placeholder="Couleurs souhaitées, pages spécifiques, logo à inclure..."></textarea>
+                    <label class="block font-bold mb-2 text-slate-700">Tes demandes particulières</label>
+                    <textarea id="details" required rows="5" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Décris ton site ici..."></textarea>
                 </div>
 
                 <div class="p-6 bg-indigo-50 rounded-2xl border border-indigo-100 text-indigo-900 flex justify-between items-center mb-8">
-                    <span class="font-medium">Total de votre commande :</span>
+                    <span class="font-medium text-lg">Total :</span>
                     <span class="font-black text-3xl"><span id="selected-pack-price"></span>€</span>
                 </div>
 
-                <button type="submit" class="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl text-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">
-                    Valider et envoyer
+                <button type="submit" id="submitBtn" class="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl text-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">
+                    Envoyer ma demande
                 </button>
             </form>
         </div>
     </section>
 
     <footer class="py-10 text-center text-slate-400 border-t border-slate-200 mt-10">
-        <p>&copy; 2026 WebFast Agency. Tous droits réservés.</p>
+        <p>&copy; 2026 WebFast Agency.</p>
     </footer>
 
     <script>
+        // --- CONFIGURATION DISCORD ---
+        const DISCORD_WEBHOOK_URL = "TON_WEBHOOK_URL_ICI"; 
+
         function showBrief(name, price) {
             document.getElementById('main-content').style.display = 'none';
             document.getElementById('brief-section').style.display = 'block';
@@ -113,12 +111,53 @@
             document.getElementById('brief-section').style.display = 'none';
         }
 
-        function submitOrder(e) {
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            // Récupération des données pour l'exemple
-            alert("Merci ! Vos informations pour le pack " + document.getElementById('selected-pack-name').innerText + " ont bien été enregistrées.\n\nPréparez-vous à recevoir votre site !");
-        }
-    </script>
+            const btn = document.getElementById('submitBtn');
+            btn.innerText = "Envoi en cours...";
+            btn.disabled = true;
 
+            const pack = document.getElementById('selected-pack-name').innerText;
+            const price = document.getElementById('selected-pack-price').innerText;
+            const company = document.getElementById('company').value;
+            const domain = document.getElementById('domain').value;
+            const contact = document.getElementById('contact').value;
+            const details = document.getElementById('details').value;
+
+            // Préparation du message pour Discord
+            const message = {
+                content: "🚀 **Nouvelle commande de site !**",
+                embeds: [{
+                    title: "Détails du projet",
+                    color: 5814783,
+                    fields: [
+                        { name: "Pack", value: pack, inline: true },
+                        { name: "Prix", value: price + "€", inline: true },
+                        { name: "Entreprise", value: company },
+                        { name: "Domaine", value: domain },
+                        { name: "Contact", value: contact },
+                        { name: "Besoins", value: details }
+                    ],
+                    footer: { text: "Envoyé depuis ton site WebFast" }
+                }]
+            };
+
+            // Envoi vers Discord
+            fetch(DISCORD_WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(message)
+            })
+            .then(() => {
+                alert("Super ! Ta demande a été envoyée sur Discord. Je reviens vers toi très vite.");
+                window.location.reload();
+            })
+            .catch(() => {
+                alert("Erreur lors de l'envoi. Vérifie ton Webhook Discord.");
+                btn.innerText = "Réessayer";
+                btn.disabled = false;
+            });
+        });
+    </script>
 </body>
 </html>
