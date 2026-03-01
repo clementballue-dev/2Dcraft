@@ -8,27 +8,31 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         #brief-section { display: none; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans">
 
     <nav class="p-6 flex justify-between items-center bg-white shadow-sm sticky top-0 z-50">
         <h1 class="text-2xl font-bold text-indigo-600">Web<span class="text-slate-800">Fast</span></h1>
-        <a href="#offres" class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition">Commander</a>
+        <a href="#offres" class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition font-semibold">Commander</a>
     </nav>
 
-    <div id="main-content">
+    <div id="main-content" class="fade-in">
         <header class="py-20 px-6 text-center bg-gradient-to-b from-white to-slate-50">
             <h2 class="text-5xl font-extrabold mb-6">Un site pro, <span class="text-indigo-600">sans attendre.</span></h2>
-            <p class="text-xl text-slate-600 max-w-2xl mx-auto mb-10">Choisissez votre type de site et envoyez-nous vos besoins.</p>
+            <p class="text-xl text-slate-600 max-w-2xl mx-auto mb-10">Choisissez votre type de site, décrivez vos besoins et recevez votre outil de travail clé en main.</p>
         </header>
 
         <section id="offres" class="py-20 px-6 max-w-6xl mx-auto">
             <div class="grid md:grid-cols-3 gap-8">
+                
                 <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 hover:border-indigo-400 transition-all group">
                     <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-rocket"></i></div>
                     <h4 class="text-2xl font-bold mb-2">Landing Page</h4>
                     <div class="text-4xl font-black mb-8">149€</div>
+                    <p class="text-slate-500 mb-8 italic">"Idéal pour capturer des leads et lancer un produit."</p>
                     <button onclick="showBrief('Landing Page', 149)" class="w-full py-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-bold group-hover:bg-indigo-600 group-hover:text-white transition">Choisir ce pack</button>
                 </div>
 
@@ -37,66 +41,68 @@
                     <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-store"></i></div>
                     <h4 class="text-2xl font-bold mb-2">Site Vitrine</h4>
                     <div class="text-4xl font-black mb-8">399€</div>
-                    <button onclick="showBrief('Site Vitrine', 399)" class="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition">Choisir ce pack</button>
+                    <p class="text-slate-500 mb-8 italic">"Pour présenter votre activité de manière pro."</p>
+                    <button onclick="showBrief('Site Vitrine', 399)" class="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-100">Choisir ce pack</button>
                 </div>
 
                 <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 hover:border-indigo-400 transition-all group">
                     <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-shopping-cart"></i></div>
                     <h4 class="text-2xl font-bold mb-2">E-Commerce</h4>
                     <div class="text-4xl font-black mb-8">749€</div>
+                    <p class="text-slate-500 mb-8 italic">"Vendez vos produits en ligne en toute sécurité."</p>
                     <button onclick="showBrief('E-Commerce', 749)" class="w-full py-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-bold group-hover:bg-indigo-600 group-hover:text-white transition">Choisir ce pack</button>
                 </div>
             </div>
         </section>
     </div>
 
-    <section id="brief-section" class="py-20 px-6 max-w-3xl mx-auto">
-        <button onclick="goBack()" class="text-indigo-600 mb-6 flex items-center gap-2 hover:underline font-semibold"><i class="fas fa-arrow-left"></i> Retour aux offres</button>
-        <div class="bg-white p-10 rounded-3xl shadow-xl border border-slate-100">
-            <h3 class="text-3xl font-bold mb-2">Détails de votre <span id="selected-pack-name" class="text-indigo-600"></span></h3>
-            <p class="text-slate-500 mb-10 italic border-b pb-6">Remplissez ces champs pour que je reçoive votre demande sur Discord.</p>
+    <section id="brief-section" class="py-20 px-6 max-w-3xl mx-auto fade-in">
+        <button onclick="goBack()" class="text-indigo-600 mb-6 flex items-center gap-2 hover:underline font-bold text-lg"><i class="fas fa-arrow-left"></i> Retour aux offres</button>
+        <div class="bg-white p-10 rounded-3xl shadow-2xl border border-slate-100">
+            <h3 class="text-3xl font-bold mb-2 text-slate-800">Personnaliser ma <span id="selected-pack-name" class="text-indigo-600"></span></h3>
+            <p class="text-slate-400 mb-10 italic border-b pb-6">Remplissez ces champs pour m'envoyer votre cahier des charges.</p>
             
             <form id="orderForm">
                 <div class="grid md:grid-cols-2 gap-6 mb-6">
                     <div>
-                        <label class="block font-bold mb-2 text-slate-700">Nom / Entreprise</label>
-                        <input type="text" id="company" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Ex: Jean Coiffure">
+                        <label class="block font-bold mb-2 text-slate-700 text-sm uppercase">Nom de l'entreprise</label>
+                        <input type="text" id="company" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600 transition" placeholder="Ex: Jean Coiffure">
                     </div>
                     <div>
-                        <label class="block font-bold mb-2 text-slate-700">Domaine d'activité</label>
-                        <input type="text" id="domain" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Ex: Artisan, Restauration">
+                        <label class="block font-bold mb-2 text-slate-700 text-sm uppercase">Domaine d'activité</label>
+                        <input type="text" id="domain" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600 transition" placeholder="Ex: Coach, Restaurant">
                     </div>
                 </div>
 
                 <div class="mb-6">
-                    <label class="block font-bold mb-2 text-slate-700">Ton Email ou Téléphone</label>
-                    <input type="text" id="contact" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Pour te recontacter">
+                    <label class="block font-bold mb-2 text-slate-700 text-sm uppercase">Email ou Téléphone (Contact)</label>
+                    <input type="text" id="contact" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600 transition" placeholder="Pour vous répondre">
                 </div>
 
                 <div class="mb-8">
-                    <label class="block font-bold mb-2 text-slate-700">Tes demandes particulières</label>
-                    <textarea id="details" required rows="5" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Décris ton site ici..."></textarea>
+                    <label class="block font-bold mb-2 text-slate-700 text-sm uppercase">Texte particulier (Détails du site)</label>
+                    <textarea id="details" required rows="6" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600 transition" placeholder="Décrivez les couleurs, les pages souhaitées, ou des exemples de sites que vous aimez..."></textarea>
                 </div>
 
-                <div class="p-6 bg-indigo-50 rounded-2xl border border-indigo-100 text-indigo-900 flex justify-between items-center mb-8">
-                    <span class="font-medium text-lg">Total :</span>
-                    <span class="font-black text-3xl"><span id="selected-pack-price"></span>€</span>
+                <div class="p-6 bg-indigo-50 rounded-2xl border border-indigo-100 flex justify-between items-center mb-8">
+                    <span class="font-bold text-indigo-900">Montant du pack :</span>
+                    <span class="font-black text-3xl text-indigo-600"><span id="selected-pack-price"></span>€</span>
                 </div>
 
-                <button type="submit" id="submitBtn" class="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl text-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">
-                    Envoyer ma demande
+                <button type="submit" id="submitBtn" class="w-full py-5 bg-indigo-600 text-white font-black rounded-xl text-xl hover:bg-indigo-700 transition-all transform hover:scale-[1.02] shadow-xl shadow-indigo-100">
+                    <i class="fas fa-paper-plane mr-2"></i> Envoyer ma demande
                 </button>
             </form>
         </div>
     </section>
 
-    <footer class="py-10 text-center text-slate-400 border-t border-slate-200 mt-10">
-        <p>&copy; 2026 WebFast Agency.</p>
+    <footer class="py-12 text-center text-slate-400">
+        <p>&copy; 2026 WebFast Agency. Tous droits réservés.</p>
     </footer>
 
     <script>
         // --- CONFIGURATION DISCORD ---
-        const DISCORD_WEBHOOK_URL = "TON_WEBHOOK_URL_ICI"; 
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1477598730264772679/16ODuCOw4MrUgsr2Rb5R8h5kESCXYLlEOoyq3BYZSJ1Jcr2hlAsONG0fHs68SuueJAW-"; 
 
         function showBrief(name, price) {
             document.getElementById('main-content').style.display = 'none';
@@ -114,7 +120,9 @@
         document.getElementById('orderForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
-            btn.innerText = "Envoi en cours...";
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Envoi en cours...";
             btn.disabled = true;
 
             const pack = document.getElementById('selected-pack-name').innerText;
@@ -124,37 +132,39 @@
             const contact = document.getElementById('contact').value;
             const details = document.getElementById('details').value;
 
-            // Préparation du message pour Discord
+            // Préparation du message Discord
             const message = {
-                content: "🚀 **Nouvelle commande de site !**",
+                username: "Nouveau Client WebFast",
+                avatar_url: "https://cdn-icons-png.flaticon.com/512/1055/1055666.png",
+                content: "🔥 **NOUVELLE COMMANDE REÇUE !**",
                 embeds: [{
-                    title: "Détails du projet",
+                    title: "Détails de la demande",
                     color: 5814783,
                     fields: [
-                        { name: "Pack", value: pack, inline: true },
-                        { name: "Prix", value: price + "€", inline: true },
-                        { name: "Entreprise", value: company },
-                        { name: "Domaine", value: domain },
-                        { name: "Contact", value: contact },
-                        { name: "Besoins", value: details }
+                        { name: "📦 Pack Choisi", value: `**${pack}**`, inline: true },
+                        { name: "💰 Prix Global", value: `**${price}€**`, inline: true },
+                        { name: "🏢 Entreprise", value: company },
+                        { name: "🏷️ Domaine", value: domain },
+                        { name: "📱 Contact", value: contact },
+                        { name: "📝 Instructions Particulières", value: "```" + details + "```" }
                     ],
-                    footer: { text: "Envoyé depuis ton site WebFast" }
+                    footer: { text: "Envoyé depuis ton site WebFast" },
+                    timestamp: new Date()
                 }]
             };
 
-            // Envoi vers Discord
-            fetch(https://discord.com/api/webhooks/1477598730264772679/16ODuCOw4MrUgsr2Rb5R8h5kESCXYLlEOoyq3BYZSJ1Jcr2hlAsONG0fHs68SuueJAW-=)
+            fetch(DISCORD_WEBHOOK_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(message)
             })
             .then(() => {
-                alert("Super ! Ta demande a été envoyée sur Discord. Je reviens vers toi très vite.");
+                alert("Super ! Ta demande a bien été envoyée sur Discord. Tu vas recevoir un retour très bientôt.");
                 window.location.reload();
             })
             .catch(() => {
-                alert("Erreur lors de l'envoi. Vérifie ton Webhook Discord.");
-                btn.innerText = "Réessayer";
+                alert("Désolé, une erreur est survenue lors de l'envoi.");
+                btn.innerHTML = originalText;
                 btn.disabled = false;
             });
         });
