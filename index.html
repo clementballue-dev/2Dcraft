@@ -21,8 +21,8 @@
 
     <div id="main-content" class="fade-in">
         <header class="py-20 px-6 text-center bg-gradient-to-b from-white to-slate-50">
-            <h2 class="text-5xl font-extrabold mb-6 italic text-slate-800 underline decoration-indigo-500">Prix Cassés !</h2>
-            <p class="text-xl text-slate-600 max-w-2xl mx-auto">Lancez votre business aujourd'hui avec nos tarifs les plus bas du marché.</p>
+            <h2 class="text-5xl font-extrabold mb-6 italic text-slate-800 underline decoration-indigo-500 text-balance">Ton site pro, maintenant.</h2>
+            <p class="text-xl text-slate-600 max-w-2xl mx-auto">Choisissez votre pack, remplissez le brief et payez en toute sécurité.</p>
         </header>
 
         <section id="offres" class="py-10 px-6 max-w-6xl mx-auto">
@@ -31,23 +31,23 @@
                 <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 hover:scale-105 transition-all">
                     <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-rocket"></i></div>
                     <h4 class="text-2xl font-bold mb-2">Landing Page</h4>
-                    <div class="text-4xl font-black mb-8 text-indigo-600">99€</div>
-                    <button onclick="showBrief('Landing Page', 99)" class="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-100">Prendre ce pack</button>
+                    <div class="text-4xl font-black mb-8 text-indigo-600">75€</div>
+                    <button onclick="showBrief('Landing Page', 75)" class="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-100">Prendre ce pack</button>
                 </div>
 
                 <div class="bg-white p-8 rounded-2xl shadow-2xl border-2 border-indigo-600 transform scale-110 relative z-10">
-                    <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Offre Limitée</span>
+                    <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Le Plus Choisi</span>
                     <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-store"></i></div>
                     <h4 class="text-2xl font-bold mb-2 text-indigo-600">Site Vitrine Pro</h4>
-                    <div class="text-4xl font-black mb-8">299€</div>
-                    <button onclick="showBrief('Site Vitrine', 299)" class="w-full py-4 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition shadow-xl shadow-indigo-200">Prendre ce pack</button>
+                    <div class="text-4xl font-black mb-8">150€</div>
+                    <button onclick="showBrief('Site Vitrine', 150)" class="w-full py-4 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition shadow-xl shadow-indigo-200">Prendre ce pack</button>
                 </div>
 
                 <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 hover:scale-105 transition-all">
                     <div class="text-indigo-600 text-4xl mb-4"><i class="fas fa-shopping-cart"></i></div>
                     <h4 class="text-2xl font-bold mb-2">E-Commerce</h4>
-                    <div class="text-4xl font-black mb-8 text-indigo-600">599€</div>
-                    <button onclick="showBrief('E-Commerce', 599)" class="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-100">Prendre ce pack</button>
+                    <div class="text-4xl font-black mb-8 text-indigo-600">200€</div>
+                    <button onclick="showBrief('E-Commerce', 200)" class="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-100">Prendre ce pack</button>
                 </div>
             </div>
         </section>
@@ -55,51 +55,63 @@
 
     <section id="brief-section" class="py-20 px-6 max-w-3xl mx-auto fade-in">
         <button onclick="goBack()" class="text-indigo-600 mb-6 flex items-center gap-2 hover:underline font-bold text-lg"><i class="fas fa-arrow-left"></i> Retour</button>
-        <div class="bg-white p-10 rounded-3xl shadow-2xl">
-            <h3 class="text-3xl font-bold mb-8">Détails pour votre <span id="selected-pack-name" class="text-indigo-600"></span></h3>
+        <div class="bg-white p-10 rounded-3xl shadow-2xl border border-slate-100">
+            <h3 class="text-3xl font-bold mb-2 text-slate-800">Personnaliser ma <span id="selected-pack-name" class="text-indigo-600"></span></h3>
+            <p class="text-slate-400 mb-10 italic border-b pb-6">Complétez ces informations avant le paiement.</p>
             
             <form id="orderForm" class="space-y-6">
                 <div class="grid md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block font-bold mb-2 text-slate-700">Nom Entreprise</label>
+                        <label class="block font-bold mb-2 text-slate-700 uppercase text-xs">Nom Entreprise</label>
                         <input type="text" id="company" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Ex: Jean Coiffure">
                     </div>
                     <div>
-                        <label class="block font-bold mb-2 text-slate-700">Domaine</label>
-                        <input type="text" id="domain" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Ex: Restaurant">
+                        <label class="block font-bold mb-2 text-slate-700 uppercase text-xs">Domaine d'activité</label>
+                        <input type="text" id="domain" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Ex: Coach, Restaurant">
                     </div>
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block font-bold mb-2 text-slate-700">Contact (Email/Tel)</label>
-                        <input type="text" id="contact" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Pour vous joindre">
+                        <label class="block font-bold mb-2 text-slate-700 uppercase text-xs">Contact (Email/Tel)</label>
+                        <input type="text" id="contact" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600 transition" placeholder="Pour vous répondre">
                     </div>
                     <div>
-                        <label class="block font-bold mb-2 text-slate-700 underline text-indigo-600">Délai souhaité</label>
-                        <input type="text" id="deadline" required class="w-full p-4 bg-indigo-50 border border-indigo-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Ex: 1 semaine, Urgent...">
+                        <label class="block font-bold mb-2 text-indigo-600 font-black uppercase text-xs italic underline">Délai souhaité</label>
+                        <input type="text" id="deadline" required class="w-full p-4 bg-indigo-50 border border-indigo-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600 transition" placeholder="Ex: 1 semaine, Urgent...">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block font-bold mb-2 text-slate-700 text-sm uppercase">Demandes particulières (Texte libre)</label>
-                    <textarea id="details" required rows="5" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Expliquez ici ce que vous voulez précisément..."></textarea>
+                    <label class="block font-bold mb-2 text-slate-700 uppercase text-xs">Texte particulier (Détails du projet)</label>
+                    <textarea id="details" required rows="5" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-600 transition" placeholder="Couleurs souhaitées, pages spécifiques, exemples..."></textarea>
                 </div>
 
-                <div class="p-6 bg-slate-900 rounded-2xl flex justify-between items-center">
+                <div class="p-6 bg-slate-900 rounded-2xl flex justify-between items-center mb-8">
                     <span class="font-bold text-white">Total à régler :</span>
                     <span class="font-black text-3xl text-indigo-400"><span id="selected-pack-price"></span>€</span>
                 </div>
 
                 <button type="submit" id="submitBtn" class="w-full py-5 bg-indigo-600 text-white font-black rounded-xl text-xl hover:bg-indigo-700 transition shadow-xl">
-                    VALIDER ET ENVOYER SUR DISCORD
+                    VALIDER ET PAYER PAR CARTE
                 </button>
             </form>
         </div>
     </section>
 
+    <footer class="py-12 text-center text-slate-400">
+        <p>&copy; 2026 WebFast Agency. Tous droits réservés.</p>
+    </footer>
+
     <script>
         const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1477598730264772679/16ODuCOw4MrUgsr2Rb5R8h5kESCXYLlEOoyq3BYZSJ1Jcr2hlAsONG0fHs68SuueJAW-"; 
+
+        // --- CONFIGURATION DES LIENS STRIPE ---
+        const STRIPE_LINKS = {
+            "75": "https://buy.stripe.com/test_28E5kv3Xc1TebL41MCg3600", 
+            "150": "https://buy.stripe.com/test_28E5kv3Xc1TebL41MCg3600",
+            "200": "https://buy.stripe.com/test_28E5kv3Xc1TebL41MCg3600"
+        };
 
         function showBrief(name, price) {
             document.getElementById('main-content').style.display = 'none';
@@ -117,24 +129,26 @@
         document.getElementById('orderForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
-            btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Transmission...";
+            const price = document.getElementById('selected-pack-price').innerText;
+            
+            btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Envoi du brief...";
             btn.disabled = true;
 
             const message = {
-                content: "🚨 **NOUVEAU BRIEFING CLIENT !**",
+                content: "🚨 **NOUVELLE COMMANDE + PAIEMENT EN COURS !**",
                 embeds: [{
-                    title: "Demande reçue via le site",
+                    title: "Briefing du Projet",
                     color: 3447003,
                     fields: [
-                        { name: "Pack", value: document.getElementById('selected-pack-name').innerText, inline: true },
-                        { name: "Prix", value: document.getElementById('selected-pack-price').innerText + "€", inline: true },
+                        { name: "Pack Choisi", value: "**" + document.getElementById('selected-pack-name').innerText + "**", inline: true },
+                        { name: "Prix Global", value: "**" + price + "€**", inline: true },
                         { name: "⌛ Délai souhaité", value: document.getElementById('deadline').value, inline: true },
                         { name: "🏢 Entreprise", value: document.getElementById('company').value },
                         { name: "🏷️ Domaine", value: document.getElementById('domain').value },
                         { name: "📱 Contact", value: document.getElementById('contact').value },
-                        { name: "📝 Instructions", value: "```" + document.getElementById('details').value + "```" }
+                        { name: "📝 Instructions Particulières", value: "```" + document.getElementById('details').value + "```" }
                     ],
-                    footer: { text: "WebFast - 2026" },
+                    footer: { text: "Suivi WebFast" },
                     timestamp: new Date()
                 }]
             };
@@ -145,13 +159,13 @@
                 body: JSON.stringify(message)
             })
             .then(() => {
-                alert("Super ! Demande transmise sur Discord. Je reviens vers toi !");
-                window.location.reload();
+                btn.innerHTML = "Redirection vers Stripe...";
+                window.location.href = STRIPE_LINKS[price];
             })
             .catch(() => {
-                alert("Erreur réseau.");
-                btn.innerHTML = "Réessayer";
+                alert("Erreur réseau. Réessayez.");
                 btn.disabled = false;
+                btn.innerText = "VALIDER ET PAYER PAR CARTE";
             });
         });
     </script>
